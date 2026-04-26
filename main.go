@@ -7,11 +7,10 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jmoc3/Social-Network.git/internal/infrastructure/database"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
@@ -31,30 +30,17 @@ func main() {
 
 	PORT := os.Getenv("PORT")
 	MONGO_URI := os.Getenv("MONGO_URI")
-	clientOptions := options.Client().ApplyURI(MONGO_URI)
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	mongo_client := database.NewMongoConnection(MONGO_URI, "social_network")
+	defer mongo_client.Client.Disconnect(context.Background())
 
-	if err != nil {
-		log.Fatal("Error connecting to mongo")
-	}
-
-	defer client.Disconnect(context.Background())
-
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Connected to mongo atlas")
-
-	collection := client.Database("social_network").Collection("users")
+	collection := mongo_client.DB.Collection("users")
 
 	app.Get("/users", func(ctx *fiber.Ctx) error {
 		var collections []User
 		cursor, err := collection.Find(context.Background(), bson.M{})
 
 		if err != nil {
-			log.Fatal("Error fetching the users")
+			log.Fatal("Error fetching the users - ", err)
 		}
 
 		defer cursor.Close(context.Background())
