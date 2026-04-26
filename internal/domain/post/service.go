@@ -1,13 +1,26 @@
 package post
 
-import (
-	"errors"
-)
+import "context"
 
-var (
-	ErrPostNotFound = errors.New("Post no encontrado")
-	ErrPostGeneral  = errors.New("Error en procesos con posts de la base de datos")
-)
+type Service struct {
+	repo Repository
+}
 
-type Post struct {
+func NewService(repo Repository) *Service {
+	return &Service{repo: repo}
+}
+
+func (s *Service) Create(ctx context.Context, content, userId string) (*Post, error) {
+
+	post, err := NewPost(content, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.repo.Save(ctx, post); err != nil {
+		return nil, err
+	}
+
+	return post, nil
+
 }
