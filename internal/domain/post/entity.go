@@ -13,19 +13,19 @@ var (
 )
 
 type Post struct {
-	Id      string
-	Content string
-	UserId  string
+	Id      string `json:"_id" bson:"_id"`
+	Content string `json:"content" bson:"content"`
+	UserId  int    `json:"user_id" bson:"user_id"`
 	User    *user.User
 }
 
-func NewPost(content, userId string) (*Post, error) {
-	if userId == "" {
+func NewPost(content string, userId *int) (*Post, error) {
+	if userId == nil {
 		return nil, ErrPostInvalidUserId
 	}
 
 	return &Post{
 		Content: content,
-		UserId:  userId,
+		UserId:  *userId,
 	}, nil
 }

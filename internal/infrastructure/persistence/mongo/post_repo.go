@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoc3/Social-Network.git/internal/domain/post"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/database"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type postRepository struct {
@@ -16,7 +17,23 @@ func NewPostRepository(db *database.MongoDatabase) post.Repository {
 }
 
 func (pr *postRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
-	return nil, nil
+	var posts []*post.Post
+	collection := pr.db.DB.Collection("posts")
+	cursor, err := collection.Find(ctx, &bson.M{})
+	if err != nil {
+		return posts, err
+	}
+	defer cursor.Close(ctx)
+	for cursor.Next(ctx) {
+		var post *post.Post
+		if err := cursor.Decode(&post); err != nil {
+			return posts, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
 }
 
 func (pr *postRepository) Save(ctx context.Context, post *post.Post) error {

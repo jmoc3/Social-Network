@@ -10,7 +10,15 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Create(ctx context.Context, content, userId string) (*Post, error) {
+func (s *Service) FindAll(ctx context.Context) ([]*Post, error) {
+	posts, err := s.repo.FindAll(ctx)
+	if err != nil {
+		return posts, err
+	}
+	return posts, nil
+}
+
+func (s *Service) Create(ctx context.Context, content string, userId *int) (*Post, error) {
 
 	post, err := NewPost(content, userId)
 	if err != nil {
