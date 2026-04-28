@@ -17,6 +17,18 @@ func NewPostHandler(service *post.Service) *PostHandler {
 	}
 }
 
+func (h *PostHandler) FindOne(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+	post, err := h.service.FindOne(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(fiber.Map{"post": post})
+}
+
 func (h *PostHandler) FindAll(c *fiber.Ctx) error {
 	ctx := c.Context()
 	posts, err := h.service.FindAll(ctx)

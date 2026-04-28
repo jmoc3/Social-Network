@@ -14,14 +14,14 @@ var (
 type User struct {
 	Id        int
 	Name      string
-	Age       string
+	Age       int
 	Email     string
 	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func NewUser(name, age, email, password string) (*User, error) {
+func NewUser(name string, age int, email, password string) (*User, error) {
 
 	if err := validateEmail(email); err != nil {
 		return nil, err

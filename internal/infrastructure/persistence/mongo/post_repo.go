@@ -6,6 +6,7 @@ import (
 	"github.com/jmoc3/Social-Network.git/internal/domain/post"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/database"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type postRepository struct {
@@ -38,8 +39,18 @@ func (pr *postRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
 
 func (pr *postRepository) FindOne(ctx context.Context, id string) (*post.Post, error) {
 	collection := pr.db.DB.Collection("posts")
-	collection.FindOne(ctx, bson.M{"_id": id})
-	return nil, nil
+	var post *post.Post
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&post)
+	if err != nil {
+		return nil, err
+	}
+
+	return post, nil
 }
 
 func (pr *postRepository) Save(ctx context.Context, post *post.Post) error {

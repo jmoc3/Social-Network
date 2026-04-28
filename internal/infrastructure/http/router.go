@@ -17,4 +17,5 @@ func NewRouter(postHandler *handler.PostHandler) *fiber.App {
 func registerPostRoutes(router fiber.Router, h *handler.PostHandler) {
 	posts := router.Group("/posts")
 	posts.Get("/", h.FindAll)
+	posts.Get("/:id", h.FindOne)
 }

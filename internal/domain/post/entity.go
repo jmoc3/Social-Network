@@ -13,10 +13,10 @@ var (
 )
 
 type Post struct {
-	Id      string `json:"_id" bson:"_id"`
-	Content string `json:"content" bson:"content"`
-	UserId  int    `json:"user_id" bson:"user_id"`
-	User    *user.User
+	Id      string     `json:"_id" bson:"_id"`
+	Content string     `json:"content" bson:"content"`
+	UserId  int        `json:"user_id" bson:"user_id"`
+	User    *user.User `json:"user" bson:"user"`
 }
 
 func NewPost(content string, userId *int) (*Post, error) {
