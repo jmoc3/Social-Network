@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jmoc3/Social-Network.git/internal/domain/post"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/database"
@@ -53,8 +54,20 @@ func (pr *postRepository) FindOne(ctx context.Context, id string) (*post.Post, e
 	return post, nil
 }
 
-func (pr *postRepository) Save(ctx context.Context, post *post.Post) error {
-	return nil
+func (pr *postRepository) Save(ctx context.Context, post *post.Post) (string, error) {
+	collection := pr.db.DB.Collection("posts")
+	result, err := collection.InsertOne(ctx, post)
+	if err != nil {
+		return "", err
+	}
+	objectId, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", errors.New("Failed to convert inserted ID")
+	}
+
+	id := objectId.Hex()
+
+	return id, nil
 }
 
 func (pr *postRepository) Update(ctx context.Context, post *post.Post) error {

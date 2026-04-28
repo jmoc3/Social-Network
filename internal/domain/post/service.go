@@ -23,21 +23,28 @@ func (s *Service) FindOne(ctx context.Context, id string) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return post, nil
 }
 
-func (s *Service) Create(ctx context.Context, content string, userId *int) (*Post, error) {
+func (s *Service) Save(ctx context.Context, post *Post) (string, error) {
+	insertedId, err := s.repo.Save(ctx, post)
+	if err != nil {
+		return "", err
+	}
+	return insertedId, nil
+}
+
+func (s *Service) Create(ctx context.Context, content string, userId *int) (string, error) {
 
 	post, err := NewPost(content, userId)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	insertedId, err := s.repo.Save(ctx, post)
+	if err != nil {
+		return "", err
 	}
 
-	if err := s.repo.Save(ctx, post); err != nil {
-		return nil, err
-	}
-
-	return post, nil
+	return insertedId, nil
 
 }

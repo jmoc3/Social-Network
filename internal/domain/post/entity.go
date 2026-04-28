@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/jmoc3/Social-Network.git/internal/domain/user"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -13,10 +14,10 @@ var (
 )
 
 type Post struct {
-	Id      string     `json:"_id" bson:"_id"`
-	Content string     `json:"content" bson:"content"`
-	UserId  int        `json:"user_id" bson:"user_id"`
-	User    *user.User `json:"user" bson:"user"`
+	Id      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Content string             `json:"content" bson:"content"`
+	UserId  int                `json:"user_id" bson:"user_id"`
+	User    *user.User         `json:"user" bson:"user"`
 }
 
 func NewPost(content string, userId *int) (*Post, error) {

@@ -18,4 +18,5 @@ func registerPostRoutes(router fiber.Router, h *handler.PostHandler) {
 	posts := router.Group("/posts")
 	posts.Get("/", h.FindAll)
 	posts.Get("/:id", h.FindOne)
+	posts.Post("/", h.Save)
 }

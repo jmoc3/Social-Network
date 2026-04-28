@@ -39,3 +39,16 @@ func (h *PostHandler) FindAll(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"posts": posts})
 }
+
+func (h *PostHandler) Save(c *fiber.Ctx) error {
+	ctx := c.Context()
+	var post post.Post
+	if err := c.BodyParser(&post); err != nil {
+		return nil
+	}
+	insertedId, err := h.service.Save(ctx, &post)
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(fiber.Map{"insertedId": insertedId})
+}
