@@ -36,6 +36,12 @@ func (pr *postRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
 	return posts, nil
 }
 
+func (pr *postRepository) FindOne(ctx context.Context, id string) (*post.Post, error) {
+	collection := pr.db.DB.Collection("posts")
+	collection.FindOne(ctx, bson.M{"_id": id})
+	return nil, nil
+}
+
 func (pr *postRepository) Save(ctx context.Context, post *post.Post) error {
 	return nil
 }

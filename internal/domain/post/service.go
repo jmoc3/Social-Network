@@ -18,6 +18,15 @@ func (s *Service) FindAll(ctx context.Context) ([]*Post, error) {
 	return posts, nil
 }
 
+func (s *Service) FindOne(ctx context.Context, id string) (*Post, error) {
+	post, err := s.repo.FindOne(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return post, nil
+}
+
 func (s *Service) Create(ctx context.Context, content string, userId *int) (*Post, error) {
 
 	post, err := NewPost(content, userId)
