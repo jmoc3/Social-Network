@@ -19,4 +19,5 @@ func registerPostRoutes(router fiber.Router, h *handler.PostHandler) {
 	posts.Get("/", h.FindAll)
 	posts.Get("/:id", h.FindOne)
 	posts.Post("/", h.Save)
+	posts.Patch("/:id", h.Update)
 }

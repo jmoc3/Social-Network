@@ -34,17 +34,11 @@ func (s *Service) Save(ctx context.Context, post *Post) (string, error) {
 	return insertedId, nil
 }
 
-func (s *Service) Create(ctx context.Context, content string, userId *int) (string, error) {
-
-	post, err := NewPost(content, userId)
-	if err != nil {
-		return "", err
-	}
-	insertedId, err := s.repo.Save(ctx, post)
+func (s *Service) Update(ctx context.Context, id string, post *Post) (string, error) {
+	updatedId, err := s.repo.Update(ctx, id, post)
 	if err != nil {
 		return "", err
 	}
 
-	return insertedId, nil
-
+	return updatedId, nil
 }

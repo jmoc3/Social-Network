@@ -70,8 +70,17 @@ func (pr *postRepository) Save(ctx context.Context, post *post.Post) (string, er
 	return id, nil
 }
 
-func (pr *postRepository) Update(ctx context.Context, post *post.Post) error {
-	return nil
+func (pr *postRepository) Update(ctx context.Context, id string, post *post.Post) (string, error) {
+	collection := pr.db.DB.Collection("posts")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return "", err
+	}
+	_, err = collection.UpdateOne(ctx, bson.M{"_id": objectId}, bson.M{"$set": post})
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }
 
 func (pr *postRepository) Delete(ctx context.Context, id string) error {

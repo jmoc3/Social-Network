@@ -52,3 +52,19 @@ func (h *PostHandler) Save(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(fiber.Map{"insertedId": insertedId})
 }
+
+func (h *PostHandler) Update(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+	var post *post.Post
+	if err := c.BodyParser(&post); err != nil {
+		return err
+	}
+
+	updatedId, err := h.service.Update(ctx, id, post)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(fiber.Map{"updatedId": updatedId})
+}
