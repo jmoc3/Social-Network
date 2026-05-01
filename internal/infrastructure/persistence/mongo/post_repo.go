@@ -10,15 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type postRepository struct {
+type PostRepository struct {
 	db *database.MongoDatabase
 }
 
 func NewPostRepository(db *database.MongoDatabase) post.Repository {
-	return &postRepository{db: db}
+	return &PostRepository{db: db}
 }
 
-func (pr *postRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
+func (pr *PostRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
 	var posts []*post.Post
 	collection := pr.db.DB.Collection("posts")
 	cursor, err := collection.Find(ctx, &bson.M{})
@@ -38,7 +38,7 @@ func (pr *postRepository) FindAll(ctx context.Context) ([]*post.Post, error) {
 	return posts, nil
 }
 
-func (pr *postRepository) FindOne(ctx context.Context, id string) (*post.Post, error) {
+func (pr *PostRepository) FindOne(ctx context.Context, id string) (*post.Post, error) {
 	collection := pr.db.DB.Collection("posts")
 	var post *post.Post
 	objectId, err := primitive.ObjectIDFromHex(id)
@@ -54,7 +54,7 @@ func (pr *postRepository) FindOne(ctx context.Context, id string) (*post.Post, e
 	return post, nil
 }
 
-func (pr *postRepository) Save(ctx context.Context, post *post.Post) (string, error) {
+func (pr *PostRepository) Save(ctx context.Context, post *post.Post) (string, error) {
 	collection := pr.db.DB.Collection("posts")
 	result, err := collection.InsertOne(ctx, post)
 	if err != nil {
@@ -70,7 +70,7 @@ func (pr *postRepository) Save(ctx context.Context, post *post.Post) (string, er
 	return id, nil
 }
 
-func (pr *postRepository) Update(ctx context.Context, id string, post *post.Post) (string, error) {
+func (pr *PostRepository) Update(ctx context.Context, id string, post *post.Post) (string, error) {
 	collection := pr.db.DB.Collection("posts")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -83,6 +83,6 @@ func (pr *postRepository) Update(ctx context.Context, id string, post *post.Post
 	return id, nil
 }
 
-func (pr *postRepository) Delete(ctx context.Context, id string) error {
+func (pr *PostRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
