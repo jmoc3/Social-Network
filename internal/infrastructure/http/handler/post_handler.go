@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoc3/Social-Network.git/internal/domain/post"
 )
@@ -20,8 +18,8 @@ func NewPostHandler(service *post.Service) *PostHandler {
 func (h *PostHandler) FindOne(c *fiber.Ctx) error {
 	ctx := c.Context()
 	id := c.Params("id")
-	post, err := h.service.FindOne(ctx, id)
 
+	post, err := h.service.FindOne(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -31,8 +29,8 @@ func (h *PostHandler) FindOne(c *fiber.Ctx) error {
 
 func (h *PostHandler) FindAll(c *fiber.Ctx) error {
 	ctx := c.Context()
+
 	posts, err := h.service.FindAll(ctx)
-	fmt.Println(err, posts)
 	if err != nil {
 		return err
 	}
@@ -42,14 +40,17 @@ func (h *PostHandler) FindAll(c *fiber.Ctx) error {
 
 func (h *PostHandler) Save(c *fiber.Ctx) error {
 	ctx := c.Context()
+
 	var post post.Post
 	if err := c.BodyParser(&post); err != nil {
 		return nil
 	}
+
 	insertedId, err := h.service.Save(ctx, &post)
 	if err != nil {
 		return err
 	}
+
 	return c.Status(200).JSON(fiber.Map{"insertedId": insertedId})
 }
 

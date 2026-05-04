@@ -1,18 +1,20 @@
 package user
 
-import "context"
+import (
+	"context"
+)
 
-type UserService struct {
+type Service struct {
 	repo Repository
 }
 
-func NewUserService(repo Repository) *UserService {
-	return &UserService{
+func NewService(repo Repository) *Service {
+	return &Service{
 		repo: repo,
 	}
 }
 
-func (s *UserService) FindAll(ctx context.Context) ([]*User, error) {
+func (s *Service) FindAll(ctx context.Context) ([]User, error) {
 	users, err := s.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
@@ -21,7 +23,7 @@ func (s *UserService) FindAll(ctx context.Context) ([]*User, error) {
 	return users, nil
 }
 
-func (s *UserService) FindOne(ctx context.Context, id string) (*User, error) {
+func (s *Service) FindOne(ctx context.Context, id string) (*User, error) {
 	user, err := s.repo.FindOne(ctx, id)
 	if err != nil {
 		return nil, err
@@ -30,20 +32,29 @@ func (s *UserService) FindOne(ctx context.Context, id string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) Save(ctx context.Context, user *User) (string, error) {
-	userId, err := s.repo.Save(ctx, user)
+func (s *Service) Save(ctx context.Context, user User) (*User, error) {
+	userCreated, err := s.repo.Save(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return userCreated, nil
+}
+
+func (s *Service) Update(ctx context.Context, id string, userRequest UpdateUserRequest) (string, error) {
+	idUpdated, err := s.repo.Update(ctx, id, userRequest)
 	if err != nil {
 		return "", err
 	}
 
-	return userId, nil
+	return idUpdated, nil
 }
 
-func (s *UserService) Update(ctx context.Context, id string, user *User) (string, error) {
-	userId, err := s.repo.Update(ctx, id, user)
+func (s *Service) Delete(ctx context.Context, id string) (*User, error) {
+	user, err := s.repo.Delete(ctx, id)
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
-	return userId, nil
+	return user, nil
 }

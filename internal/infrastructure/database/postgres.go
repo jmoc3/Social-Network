@@ -2,25 +2,24 @@ package database
 
 import (
 	"context"
-	"os"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 )
 
 type PostgresDatabase struct {
-	conn *pgx.Conn
+	Conn *pgx.Conn
 }
 
-func NewPostgressConnection() *PostgresDatabase {
+func NewPostgressConnection(uri string) *PostgresDatabase {
 	ctx := context.Background()
-	POSTGRES_URI := os.Getenv("POSTGRES_URI")
-	conn, err := pgx.Connect(ctx, POSTGRES_URI)
+	conn, err := pgx.Connect(ctx, uri)
 	if err != nil {
 		return nil
 	}
-	defer conn.Close(ctx)
+	fmt.Println("Connected to postgres")
 
 	return &PostgresDatabase{
-		conn: conn,
+		Conn: conn,
 	}
 }
