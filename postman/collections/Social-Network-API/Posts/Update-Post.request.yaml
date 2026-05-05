@@ -1,0 +1,15 @@
+$kind: http-request
+name: Update Post
+method: PATCH
+url: '{{localhost}}/api/v1/posts/{{postId}}'
+description: 'Updates an existing post by ID. Response: {"updatedId": "..."}'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "content": "Updated post content"
+    }

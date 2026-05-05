@@ -1,0 +1,6 @@
+$kind: http-request
+name: Get All Posts
+method: GET
+url: "{{localhost}}/api/v1/posts"
+description: 'Returns a list of all posts. Response: {"posts": [...]}'
+order: 1000

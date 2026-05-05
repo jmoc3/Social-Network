@@ -1,0 +1,18 @@
+$kind: http-request
+name: Create User
+method: POST
+url: '{{localhost}}/api/v1/users'
+description: 'Creates a new user. Response: {"insertedId": {...}}'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "Name": "John Doe",
+      "Age": 25,
+      "Email": "john@example.com",
+      "Password": "secret123"
+    }

@@ -1,0 +1,16 @@
+$kind: http-request
+name: Create Post
+method: POST
+url: '{{localhost}}/api/v1/posts'
+description: 'Creates a new post. Response: {"insertedId": "..."}'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "content": "Hello, social network!",
+      "user_id": 1
+    }

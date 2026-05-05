@@ -1,0 +1,15 @@
+$kind: http-request
+name: Update User
+method: PATCH
+url: "{{localhost}}/api/v1/users/{{userId}}"
+description: 'Partially updates a user (Name and/or Age). Response: {"updatedId": "..."}'
+order: 4000
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "Name": "Jane Doe",
+      "Age": 19
+    }

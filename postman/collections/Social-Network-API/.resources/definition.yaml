@@ -1,0 +1,5 @@
+$kind: collection
+name: Social Network API
+description: API collection for the Social Network backend. Users are stored in PostgreSQL, Posts in MongoDB. Base URL is {{baseUrl}}.
+variables:
+  localhost: "http://localhost:4000"
