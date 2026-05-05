@@ -3,14 +3,16 @@ package user
 import "context"
 
 type Repository interface {
-	FindAll(ctx context.Context) ([]User, error)
-	FindOne(ctx context.Context, id string) (*User, error)
-	Save(ctx context.Context, user User) (*User, error)
-	Update(ctx context.Context, id string, user UpdateUserRequest) (string, error)
-	Delete(ctx context.Context, id string) (*User, error)
+	FindAll(ctx context.Context) ([]UserBase, error)
+	FindOne(ctx context.Context, id string) (*UserBase, error)
+	Save(ctx context.Context, user User) (*UserBase, error)
+	Update(ctx context.Context, id int, user UpdateUserRequest) (int, error)
+	Delete(ctx context.Context, id string) (*UserBase, error)
 }
 
-type UserResponse struct {
+type User struct {
+	UserBase
+	Password string
 }
 
 type UpdateUserRequest struct {

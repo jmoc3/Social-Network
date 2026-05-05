@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoc3/Social-Network.git/internal/domain/user"
 )
@@ -54,7 +56,10 @@ func (h *UserHandler) Save(c *fiber.Ctx) error {
 
 func (h *UserHandler) Update(c *fiber.Ctx) error {
 	ctx := c.Context()
-	id := c.Params("id")
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(418).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	var user user.UpdateUserRequest
 	if err := c.BodyParser(&user); err != nil {

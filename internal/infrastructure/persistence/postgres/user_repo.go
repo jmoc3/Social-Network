@@ -18,16 +18,16 @@ func NewUserRepository(db *database.PostgresDatabase) user.Repository {
 	}
 }
 
-func (r UserRepository) FindAll(ctx context.Context) ([]user.User, error) {
+func (r UserRepository) FindAll(ctx context.Context) ([]user.UserBase, error) {
 	cursor, err := r.db.Conn.Query(ctx, "Select id, name, age, email, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, err
 	}
-	var users []user.User
+	var users []user.UserBase
 	defer cursor.Close()
 
 	for cursor.Next() {
-		var user user.User
+		var user user.UserBase
 		if err := cursor.Scan(&user.Id, &user.Name, &user.Age, &user.Email, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -38,8 +38,8 @@ func (r UserRepository) FindAll(ctx context.Context) ([]user.User, error) {
 	return users, nil
 }
 
-func (r UserRepository) FindOne(ctx context.Context, id string) (*user.User, error) {
-	var user user.User
+func (r UserRepository) FindOne(ctx context.Context, id string) (*user.UserBase, error) {
+	var user user.UserBase
 	err := r.db.Conn.QueryRow(ctx, "SELECT id, age, name, email, created_at, updated_at FROM users WHERE id = $1", id).Scan(&user.Id, &user.Age, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (r UserRepository) FindOne(ctx context.Context, id string) (*user.User, err
 	return &user, nil
 }
 
-func (r UserRepository) Save(ctx context.Context, userRequest user.User) (*user.User, error) {
-	var userInserted user.User
+func (r UserRepository) Save(ctx context.Context, userRequest user.User) (*user.UserBase, error) {
+	var userInserted user.UserBase
 	err := r.db.Conn.QueryRow(ctx, `INSERT INTO users(name, age, email, password) 
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, name, age, email, created_at`,
@@ -63,7 +63,7 @@ func (r UserRepository) Save(ctx context.Context, userRequest user.User) (*user.
 	return &userInserted, nil
 }
 
-func (r UserRepository) Update(ctx context.Context, id string, userRequest user.UpdateUserRequest) (string, error) {
+func (r UserRepository) Update(ctx context.Context, id int, userRequest user.UpdateUserRequest) (int, error) {
 	query := "UPDATE users SET "
 	args := []any{}
 	i := 1
@@ -75,22 +75,24 @@ func (r UserRepository) Update(ctx context.Context, id string, userRequest user.
 	}
 
 	if userRequest.Age != nil {
-		query += fmt.Sprintf("age=$%d", i)
+		query += fmt.Sprintf("age=$%d ", i)
 		args = append(args, userRequest.Age)
 		i++
 	}
 
+	query += fmt.Sprintf("WHERE id = %d", id)
+
 	_, err := r.db.Conn.Exec(ctx, query, args...)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	return id, nil
 }
 
-func (r UserRepository) Delete(ctx context.Context, id string) (*user.User, error) {
-	var user user.User
-	err := r.db.Conn.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING id, name, email", id).Scan(&user.Id, &user.Name, &user.Email)
+func (r UserRepository) Delete(ctx context.Context, id string) (*user.UserBase, error) {
+	var user user.UserBase
+	err := r.db.Conn.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING id, name, age, email", id).Scan(&user.Id, &user.Name, &user.Age, &user.Email)
 	if err != nil {
 		return nil, err
 	}
