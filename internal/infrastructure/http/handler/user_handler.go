@@ -39,6 +39,21 @@ func (h *UserHandler) FindAll(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"users": users})
 }
 
+func (h *UserHandler) Login(c *fiber.Ctx) error {
+	ctx := c.Context()
+	var body user.LoginDTO
+	if err := c.BodyParser(&body); err != nil {
+		return err
+	}
+
+	ok, err := h.service.Login(ctx, body)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"err": err.Error()})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"response": ok})
+}
+
 func (h *UserHandler) Save(c *fiber.Ctx) error {
 	ctx := c.Context()
 	var user user.User

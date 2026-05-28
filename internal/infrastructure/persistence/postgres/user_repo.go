@@ -48,6 +48,47 @@ func (r UserRepository) FindOne(ctx context.Context, id string) (*user.UserBase,
 	return &user, nil
 }
 
+func (r UserRepository) FindBy(ctx context.Context, fields []string, table string, filter string) ([]any, error) {
+
+	fieldString := ""
+	for i, v := range fields {
+		fieldString += v
+		if i+1 != len(fields) {
+			fieldString += ", "
+		}
+	}
+	var response []any
+
+	rows, err := r.db.Conn.Query(ctx, fmt.Sprintf("SELECT %s FROM %s WHERE %s", fieldString, table, filter))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		fields := rows.FieldDescriptions()
+		values := make([]any, len(fields))
+		pointers := make([]any, len(fields))
+
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+
+		err := rows.Scan(pointers...)
+		if err != nil {
+			fmt.Println("Error aaa", err)
+			return nil, err
+		}
+
+		var record = make(map[string]any)
+		for i, v := range fields {
+			record[v.Name] = values[i]
+		}
+		response = append(response, record)
+	}
+	return response, nil
+}
+
 func (r UserRepository) Save(ctx context.Context, userRequest user.User) (*user.UserBase, error) {
 	var userInserted user.UserBase
 	err := r.db.Conn.QueryRow(ctx, `INSERT INTO users(name, age, email, password) 

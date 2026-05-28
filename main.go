@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -25,7 +24,6 @@ type User struct {
 }
 
 func main() {
-	fmt.Println("Hello world")
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env")

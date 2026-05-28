@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 )
 
 type Service struct {
@@ -30,6 +31,20 @@ func (s *Service) FindOne(ctx context.Context, id string) (*UserBase, error) {
 	}
 
 	return user, nil
+}
+
+func (s *Service) Login(ctx context.Context, body LoginDTO) (bool, error) {
+	filter := fmt.Sprintf("email = '%s'", body.Email)
+	rows, err := s.repo.FindBy(ctx, []string{"email"}, "users", filter)
+	if err != nil {
+		return false, err
+	}
+
+	if len(rows) == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *Service) Save(ctx context.Context, user User) (*UserBase, error) {

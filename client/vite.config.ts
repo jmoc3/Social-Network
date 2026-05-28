@@ -12,6 +12,7 @@ export default defineConfig({
     tailwindcss()
   ],
   resolve:{
+    dedupe: ["react", "react-dom"], // ← fuerza una sola copia de React
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
