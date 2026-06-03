@@ -3,4 +3,12 @@ type LoginDTO = {
   password: string
 }
 
-export type { LoginDTO }
+type RegisterDTO = {
+  name: string,
+  dateOfBirth: string,
+  email: string,
+  password: string,
+  confirmPassword: string
+}
+
+export type { LoginDTO, RegisterDTO }

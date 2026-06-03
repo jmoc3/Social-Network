@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -39,7 +40,7 @@ func (s *Service) FindOne(ctx context.Context, id string) (*UserBase, error) {
 func (s *Service) Register(ctx context.Context, body RegisterDTO) (bool, error) {
 
 	if body.ConfirmPassword != body.Password {
-		return false, errors.New("Password doesnt match")
+		return false, errors.New("Las contraseñas no coinciden")
 	}
 
 	bytes, err := bcrypt.GenerateFromPassword([]byte(body.Password), 14)
@@ -50,18 +51,24 @@ func (s *Service) Register(ctx context.Context, body RegisterDTO) (bool, error) 
 
 	body.Password = string(bytes)
 
-	_, err = s.Save(ctx, User{
-		UserBase: UserBase{
-			Id:    body.Id,
-			Email: body.Email,
-			Name:  body.Name,
-			Age:   body.Age,
-		},
-		Password: body.Password,
+	_, err = s.Save(ctx, SaveUserDTO{
+		Email:       body.Email,
+		Name:        body.Name,
+		DateOfBirth: body.DateOfBirth,
+		Password:    body.Password,
 	})
 
 	if err != nil {
-		return false, errors.New("Error created new User")
+
+		if strings.Contains(err.Error(), "users_date_of_birth_check") {
+			return false, errors.New("Usuario debe ser mayor a 12 años")
+		}
+
+		if strings.Contains(err.Error(), "users_email_key") {
+			return false, errors.New("Correo ya registrado")
+		}
+
+		return false, fmt.Errorf("Error creating user: %w", err)
 	}
 
 	return true, nil
@@ -76,7 +83,7 @@ func (s *Service) Login(ctx context.Context, body LoginDTO) (bool, error) {
 	}
 
 	if len(rows) == 0 {
-		return false, errors.New("User not Found")
+		return false, errors.New("Usuario no encontrado")
 	}
 
 	psw := rows[0]["password"]
@@ -84,13 +91,13 @@ func (s *Service) Login(ctx context.Context, body LoginDTO) (bool, error) {
 	equalPsw := err == nil
 
 	if !equalPsw {
-		return false, errors.New("Incorrect password")
+		return false, errors.New("Contraseña incorrecta")
 	}
 
 	return true, nil
 }
 
-func (s *Service) Save(ctx context.Context, user User) (*UserBase, error) {
+func (s *Service) Save(ctx context.Context, user SaveUserDTO) (*UserBase, error) {
 	userCreated, err := s.repo.Save(ctx, user)
 	if err != nil {
 		return nil, err

@@ -1,7 +1,7 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  age INT NOT NULL CHECK (users.age > 12),
+  date_of_birth DATE NOT NULL CHECK (AGE(users.date_of_birth) > '12 years'),
   email VARCHAR(150) UNIQUE NOT NULL,
   password VARCHAR(60) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

@@ -39,6 +39,22 @@ func (h *UserHandler) FindAll(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"users": users})
 }
 
+func (h *UserHandler) Register(c *fiber.Ctx) error {
+	ctx := c.Context()
+	var body user.RegisterDTO
+	if err := c.BodyParser(&body); err != nil {
+		return err
+	}
+
+	ok, err := h.service.Register(ctx, body)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": ok})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"msg": "Usuario creado exitosamente", "status": ok})
+}
+
 func (h *UserHandler) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
 	var body user.LoginDTO
@@ -46,18 +62,18 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	_, err := h.service.Login(ctx, body)
+	ok, err := h.service.Login(ctx, body)
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": false})
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": ok})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": true})
+	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": ok})
 }
 
 func (h *UserHandler) Save(c *fiber.Ctx) error {
 	ctx := c.Context()
-	var user user.User
+	var user user.SaveUserDTO
 	if err := c.BodyParser(&user); err != nil {
 		return err
 	}

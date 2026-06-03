@@ -6,10 +6,12 @@ import { useAuthStore } from "../store/useAuthStore";
 import type { LoginDTO } from "../types";
 import { Spinner  } from '@/components/ui/spinner'
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage : FC = () => {
   const { register: formRegister, handleSubmit} = useForm<LoginDTO>()
   const { login } = useAuthStore()
+  const navigate = useNavigate()
 
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -24,6 +26,7 @@ export const LoginPage : FC = () => {
     }
 
     toast.success(res.msg)    
+    navigate("/")
   }
 
   return (
@@ -55,11 +58,13 @@ export const LoginPage : FC = () => {
         </label>
         <span>¿Olvidaste tu contraseña?</span>
       </div>
-      <button className='flex justify-center absolute left-[50%] -translate-x-1/2 bottom-10 bg-cyan-800 text-white w-50 px-6 text-center py-2 cursor-pointer hover:w-full transition-all border-0'>
-      {
-        loading ? <Spinner className="size-6"/> : <>Iniciar sesión</> 
-      }
-      </button>
+        <button className='flex justify-center absolute left-[50%] -translate-x-1/2 bottom-20 bg-cyan-800 text-white w-50 px-6 text-center py-2 cursor-pointer hover:w-full transition-all border-0'>
+        {
+          loading ? <Spinner className="size-6"/> : <>Iniciar sesión</> 
+        }
+        </button>
+        <span className="flex justify-center text-sm hover:cursor-pointer hover:font-bold" onClick={()=> navigate('/register') }>Registrarse</span>
+
     </form>
   )
 }

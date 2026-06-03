@@ -19,7 +19,7 @@ func NewUserRepository(db *database.PostgresDatabase) user.Repository {
 }
 
 func (r UserRepository) FindAll(ctx context.Context) ([]user.UserBase, error) {
-	cursor, err := r.db.Conn.Query(ctx, "Select id, name, age, email, created_at, updated_at FROM users")
+	cursor, err := r.db.Conn.Query(ctx, "Select id, name, date_of_birth, email, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (r UserRepository) FindAll(ctx context.Context) ([]user.UserBase, error) {
 
 	for cursor.Next() {
 		var user user.UserBase
-		if err := cursor.Scan(&user.Id, &user.Name, &user.Age, &user.Email, &user.CreatedAt, &user.UpdatedAt); err != nil {
+		if err := cursor.Scan(&user.Id, &user.Name, &user.DateOfBirth, &user.Email, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			return nil, err
 		}
 
@@ -40,7 +40,7 @@ func (r UserRepository) FindAll(ctx context.Context) ([]user.UserBase, error) {
 
 func (r UserRepository) FindOne(ctx context.Context, id string) (*user.UserBase, error) {
 	var user user.UserBase
-	err := r.db.Conn.QueryRow(ctx, "SELECT id, age, name, email, created_at, updated_at FROM users WHERE id = $1", id).Scan(&user.Id, &user.Age, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+	err := r.db.Conn.QueryRow(ctx, "SELECT id, date_of_birth, name, email, created_at, updated_at FROM users WHERE id = $1", id).Scan(&user.Id, &user.DateOfBirth, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +89,16 @@ func (r UserRepository) FindBy(ctx context.Context, fields []string, table strin
 	return response, nil
 }
 
-func (r UserRepository) Save(ctx context.Context, userRequest user.User) (*user.UserBase, error) {
+func (r UserRepository) Save(ctx context.Context, userRequest user.SaveUserDTO) (*user.UserBase, error) {
 	var userInserted user.UserBase
-	err := r.db.Conn.QueryRow(ctx, `INSERT INTO users(name, age, email, password) 
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, name, age, email, created_at`,
-		userRequest.Name, userRequest.Age, userRequest.Email, userRequest.Password).
-		Scan(&userInserted.Id, &userInserted.Name, &userInserted.Age, &userInserted.Email, &userInserted.CreatedAt)
+	fmt.Printf("User Request repo -> %+v \n", userRequest)
 
+	err := r.db.Conn.QueryRow(ctx, `INSERT INTO users(name, date_of_birth, email, password) 
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, name, date_of_birth, email, created_at, updated_at`,
+		userRequest.Name, userRequest.DateOfBirth, userRequest.Email, userRequest.Password).
+		Scan(&userInserted.Id, &userInserted.Name, &userInserted.DateOfBirth, &userInserted.Email, &userInserted.CreatedAt, &userInserted.UpdatedAt)
+	fmt.Printf("User-> %+v \n", userInserted)
 	if err != nil {
 		return nil, err
 	}
@@ -115,9 +117,9 @@ func (r UserRepository) Update(ctx context.Context, id int, userRequest user.Upd
 		i++
 	}
 
-	if userRequest.Age != nil {
-		query += fmt.Sprintf("age=$%d ", i)
-		args = append(args, userRequest.Age)
+	if userRequest.DateOfBirth != nil {
+		query += fmt.Sprintf("date_of_birth=$%d ", i)
+		args = append(args, userRequest.DateOfBirth)
 		i++
 	}
 
@@ -133,7 +135,7 @@ func (r UserRepository) Update(ctx context.Context, id int, userRequest user.Upd
 
 func (r UserRepository) Delete(ctx context.Context, id string) (*user.UserBase, error) {
 	var user user.UserBase
-	err := r.db.Conn.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING id, name, age, email", id).Scan(&user.Id, &user.Name, &user.Age, &user.Email)
+	err := r.db.Conn.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING id, name, date_of_birth, email", id).Scan(&user.Id, &user.Name, &user.DateOfBirth, &user.Email)
 	if err != nil {
 		return nil, err
 	}

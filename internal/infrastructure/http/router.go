@@ -36,6 +36,6 @@ func registerUserRoutes(router fiber.Router, h *handler.UserHandler) {
 	users.Get("/", h.FindAll)
 	users.Get("/:id", h.FindOne)
 	users.Post("/login", h.Login)
-	users.Post("/register", h.Save)
+	users.Post("/register", h.Register)
 	users.Patch("/:id", h.Update)
 }
