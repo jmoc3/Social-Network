@@ -48,7 +48,7 @@ func (r UserRepository) FindOne(ctx context.Context, id string) (*user.UserBase,
 	return &user, nil
 }
 
-func (r UserRepository) FindBy(ctx context.Context, fields []string, table string, filter string) ([]any, error) {
+func (r UserRepository) FindBy(ctx context.Context, fields []string, table string, filter string) ([]map[string]any, error) {
 
 	fieldString := ""
 	for i, v := range fields {
@@ -57,7 +57,7 @@ func (r UserRepository) FindBy(ctx context.Context, fields []string, table strin
 			fieldString += ", "
 		}
 	}
-	var response []any
+	var response []map[string]any
 
 	rows, err := r.db.Conn.Query(ctx, fmt.Sprintf("SELECT %s FROM %s WHERE %s", fieldString, table, filter))
 	if err != nil {
