@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "../store/useAuthStore";
 import type { LoginDTO } from "../types";
 import { Spinner  } from '@/components/ui/spinner'
+import { toast } from "sonner";
 
 export const LoginPage : FC = () => {
   const { register: formRegister, handleSubmit} = useForm<LoginDTO>()
@@ -17,8 +18,12 @@ export const LoginPage : FC = () => {
     const res = await login(body)
     setLoading(false)
 
-    console.log(res)
-    
+    if (!res.status){
+      toast.error(res.msg)
+      return
+    }
+
+    toast.success(res.msg)    
   }
 
   return (
