@@ -46,12 +46,13 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	ok, err := h.service.Login(ctx, body)
+	_, err := h.service.Login(ctx, body)
+
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"err": err.Error()})
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": false})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"response": ok})
+	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": true})
 }
 
 func (h *UserHandler) Save(c *fiber.Ctx) error {
