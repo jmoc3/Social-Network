@@ -1,20 +1,23 @@
-import { type FC } from "react";
+import { useState, type FC } from "react";
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import snIcon from '@/assets/snIcon.png'
-import { Input } from "./ui/Input";
+import { Input } from "@/components/ui/input";
 import { useAuthStore } from "../store/useAuthStore";
 import type { LoginDTO } from "../types";
+import { Spinner  } from '@/components/ui/spinner'
 
 export const LoginPage : FC = () => {
   const { register: formRegister, handleSubmit} = useForm<LoginDTO>()
   const { login } = useAuthStore()
 
+  const [loading, setLoading] = useState<boolean>(false)
+
   const onSubmit : SubmitHandler<LoginDTO> = async (body: LoginDTO) => {
-    console.log("form body: ", body)
+    setLoading(true)
     const res = await login(body)
-    if (res.response){
-      alert("Navigating...")
-    }
+    setLoading(false)
+
+    console.log(res)
     
   }
 
@@ -47,7 +50,11 @@ export const LoginPage : FC = () => {
         </label>
         <span>¿Olvidaste tu contraseña?</span>
       </div>
-      <button className='absolute left-[50%] -translate-x-1/2 bottom-10 bg-cyan-800 text-white w-50 px-6 text-center py-2 cursor-pointer hover:w-full transition-all'>Iniciar sesión</button>
+      <button className='flex justify-center absolute left-[50%] -translate-x-1/2 bottom-10 bg-cyan-800 text-white w-50 px-6 text-center py-2 cursor-pointer hover:w-full transition-all border-0'>
+      {
+        loading ? <Spinner className="size-6"/> : <>Iniciar sesión</> 
+      }
+      </button>
     </form>
   )
 }

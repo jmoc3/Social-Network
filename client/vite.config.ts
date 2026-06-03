@@ -14,7 +14,7 @@ export default defineConfig({
   resolve:{
     dedupe: ["react", "react-dom"], // ← fuerza una sola copia de React
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, './src')
     }
   }
 })
