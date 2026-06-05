@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jmoc3/Social-Network.git/internal/infrastructure/http/middleware"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -74,16 +75,16 @@ func (s *Service) Register(ctx context.Context, body RegisterDTO) (bool, error) 
 	return true, nil
 }
 
-func (s *Service) Login(ctx context.Context, body LoginDTO) (bool, error) {
+func (s *Service) Login(ctx context.Context, body LoginDTO) (string, error) {
 	filter := fmt.Sprintf("email = '%s'", body.Email)
 
-	rows, err := s.repo.FindBy(ctx, []string{"password"}, "users", filter)
+	rows, err := s.repo.FindBy(ctx, []string{"id", "password"}, "users", filter)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	if len(rows) == 0 {
-		return false, errors.New("Usuario no encontrado")
+		return "", errors.New("Usuario no encontrado")
 	}
 
 	psw := rows[0]["password"]
@@ -91,10 +92,16 @@ func (s *Service) Login(ctx context.Context, body LoginDTO) (bool, error) {
 	equalPsw := err == nil
 
 	if !equalPsw {
-		return false, errors.New("Contraseña incorrecta")
+		return "", errors.New("Contraseña incorrecta")
 	}
 
-	return true, nil
+	token, err := middleware.GenerateToken(fmt.Sprint(rows[0]["id"]), body.Email)
+
+	if err != nil {
+		return "", fmt.Errorf("Error generando el token: %w", err)
+	}
+
+	return token, nil
 }
 
 func (s *Service) Save(ctx context.Context, user SaveUserDTO) (*UserBase, error) {

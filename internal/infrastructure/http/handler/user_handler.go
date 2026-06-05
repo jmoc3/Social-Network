@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jmoc3/Social-Network.git/internal/domain/user"
 )
 
@@ -55,6 +56,15 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"msg": "Usuario creado exitosamente", "status": ok})
 }
 
+func (h *UserHandler) Me(c *fiber.Ctx) error {
+	claims := c.Locals("claims").(jwt.MapClaims)
+
+	return c.Status(200).JSON(fiber.Map{
+		"user_id": claims["user_id"],
+		"email":   claims["email"],
+	})
+}
+
 func (h *UserHandler) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
 	var body user.LoginDTO
@@ -62,13 +72,13 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	ok, err := h.service.Login(ctx, body)
+	token, err := h.service.Login(ctx, body)
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": ok})
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": false})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": ok})
+	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": true, "token": token})
 }
 
 func (h *UserHandler) Save(c *fiber.Ctx) error {

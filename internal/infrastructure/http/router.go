@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/http/handler"
+	"github.com/jmoc3/Social-Network.git/internal/infrastructure/http/middleware"
 )
 
 func NewRouter(postHandler *handler.PostHandler, userHandler *handler.UserHandler) *fiber.App {
@@ -34,7 +35,7 @@ func registerPostRoutes(router fiber.Router, h *handler.PostHandler) {
 func registerUserRoutes(router fiber.Router, h *handler.UserHandler) {
 	users := router.Group("/users")
 	users.Get("/", h.FindAll)
-	users.Get("/:id", h.FindOne)
+	users.Get("/me", middleware.AuthMiddleware, h.Me)
 	users.Post("/login", h.Login)
 	users.Post("/register", h.Register)
 	users.Patch("/:id", h.Update)
