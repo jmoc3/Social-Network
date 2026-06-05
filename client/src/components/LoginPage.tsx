@@ -19,13 +19,13 @@ export const LoginPage : FC = () => {
     setLoading(true)
     const res = await login(body)
     setLoading(false)
-
     if (!res.status){
       toast.error(res.msg)
       return
     }
 
-    toast.success(res.msg)    
+    toast.success(res.msg)   
+    localStorage.setItem("token", res.token as string)
     navigate("/")
   }
 

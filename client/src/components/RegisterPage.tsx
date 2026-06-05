@@ -24,7 +24,6 @@ export const RegisterPage: FC = () => {
     const res = await register(body);
     setLoading(false);
     if (!res.status) {
-      console.log(res);
       toast.error(res.msg);
       return;
     }

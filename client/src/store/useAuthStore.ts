@@ -2,12 +2,51 @@ import { create } from 'zustand'
 import { apiFetch } from '../helpers/fetching'
 import type { LoginDTO, RegisterDTO } from '../types'
 
-type Actions = {
-  register: (user: RegisterDTO) => Promise<Record<string, boolean>>
-  login: (user: LoginDTO) => Promise<Record<string, boolean>>
+type State = {
+  user: Record<string,string> | null,
+  loading: boolean
 }
 
-export const useAuthStore = create<Actions>() (() => ({
+type Actions = {
+  me: () => void
+  register: (user: RegisterDTO) => Promise<Record<string, boolean>>
+  login: (user: LoginDTO) => Promise<Record<string, string | boolean>>
+}
+
+export const useAuthStore = create<State & Actions>() ((set) => ({
+  user: null,
+  loading: true,
+  me: async () => {
+    set({ loading: true })
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      set({ loading: false })
+      return
+    }
+
+    try{
+      const res = await apiFetch("/users/me",{
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+      })
+
+      const data = await res.json()
+
+      if (Object.hasOwn(data, "error")){
+        set({ user: null })
+      }else{
+        set({ user: data })
+      }
+    }catch(error){
+      console.error(error)
+      set({ user: null })
+    }
+    set({ loading: false })
+  },
   register: async (user) => {
    const res = await apiFetch("/users/register",{
       method: "POST",
