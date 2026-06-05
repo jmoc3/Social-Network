@@ -6,6 +6,7 @@ import { NotFoundPage } from './components/NotFound'
 import { RegisterPage } from './components/RegisterPage'
 import { HomePage } from './components/HomePage'
 import { ProtectedRouter } from './components/ProtectedRoute'
+import { UnProtectedRouter } from './components/UnProtectedRoute copy'
 
 function App() {
   return (
@@ -15,8 +16,10 @@ function App() {
         <Route element={<ProtectedRouter/>}>
           <Route path='/' element={<HomePage/>}></Route>
         </Route >
+        <Route element={<UnProtectedRouter />}>
           <Route path='/login' element={<LoginPage/>}></Route>
           <Route path='/register' element={<RegisterPage/>}></Route>
+        </Route>
         <Route path='*' element={<NotFoundPage/>}></Route>
       </Routes>
     </div>
