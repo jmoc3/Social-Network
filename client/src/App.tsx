@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
-import { LoginPage } from './components/LoginPage'
+import { LoginPage } from './pages/LoginPage'
 import { Toaster } from 'sonner'
-import { NotFoundPage } from './components/NotFound'
-import { RegisterPage } from './components/RegisterPage'
-import { HomePage } from './components/HomePage'
-import { ProtectedRouter } from './components/ProtectedRoute'
-import { UnProtectedRouter } from './components/UnProtectedRoute copy'
+import { NotFoundPage } from './pages/NotFound'
+import { RegisterPage } from './pages/RegisterPage'
+import { HomePage } from './pages/HomePage'
+import { ProtectedRouter } from './pages/ProtectedRoute'
+import { UnProtectedRouter } from './pages/UnProtectedRoute'
 
 function App() {
   return (
