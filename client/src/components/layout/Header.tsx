@@ -12,7 +12,6 @@ export const Header: FC = () => {
         <img className='w-10 h-10 rounded object-cover object-center cursor-pointer' src={snIcon} alt="" onClick={()=> { navigate("/") }} />
         <ul className="flex items-center gap-4">
           <ol className="hover:font-bold cursor-pointer">Inicio</ol>
-          <ol className="hover:font-bold cursor-pointer">Mensajes</ol>
         </ul>
       </div>
       <div className="flex gap-4 items-center relative">
