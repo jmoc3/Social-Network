@@ -8,6 +8,7 @@ type State = {
 }
 
 type Actions = {
+  setUser: (user: {name:string} | LoginDTO) => void,
   me: () => void
   register: (user: RegisterDTO) => Promise<Record<string, boolean>>
   login: (user: LoginDTO) => Promise<Record<string, string | boolean>>
@@ -16,6 +17,7 @@ type Actions = {
 export const useAuthStore = create<State & Actions>() ((set) => ({
   user: null,
   loading: true,
+  setUser: (user: {name:string} | LoginDTO) => set({ user }),
   me: async () => {
     set({ loading: true })
     const token = localStorage.getItem('token')

@@ -11,7 +11,7 @@ import { UnProtectedRouter } from './pages/UnProtectedRoute'
 function App() {
   return (
     <div className=' w-full h-screen flex justify-center items-center'>
-        <Toaster richColors />
+        <Toaster expand={true} richColors />
       <Routes>
         <Route element={<ProtectedRouter/>}>
           <Route path='/' element={<HomePage/>}></Route>

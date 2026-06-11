@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/useAuthStore"
 import { useState, type FC } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { FaAngleRight } from "react-icons/fa6"
@@ -6,9 +7,10 @@ export const WelcomeModal : FC = () => {
   const [display, setDisplay] = useState<boolean>(!localStorage.getItem("user"))
   const [page, setPage] = useState<number>(1)
   const { register, handleSubmit, formState: { errors } } = useForm<{name: string}>()
-
+  const { setUser } = useAuthStore()
   const onSubmit: SubmitHandler<{name:string}> = (body: {name: string}) => {
     setDisplay(false)
+    setUser(body)
     localStorage.setItem("user", JSON.stringify(body))
   }
 
