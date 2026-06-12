@@ -57,7 +57,6 @@ export const useAuthStore = create<State & Actions>() ((set) => ({
       },
       body: JSON.stringify(user)
     })
-    console.log(res)
     return await res.json()
   },
   login: async (user) => {

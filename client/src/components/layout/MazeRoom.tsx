@@ -36,8 +36,6 @@ export const MazeRoom : FC = () => {
     
     const dpr = window.devicePixelRatio || 1
     const rect = canva.getBoundingClientRect()
-    console.log("dpr -> ", dpr)
-    console.log("rect -> ", rect)
 
     canva.width = rect.width * dpr
     canva.height = rect.height * dpr
@@ -45,7 +43,7 @@ export const MazeRoom : FC = () => {
     
     context.fillStyle = '#252525'
     context.fillRect(0, 0, 800, 800)
-
+    console.log("Üsing effect y tal")
     findPath(context)
 
   }, [])
