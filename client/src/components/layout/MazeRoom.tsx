@@ -3,14 +3,13 @@ import { useEffect, useRef, type FC } from "react"
 
 export const MazeRoom : FC = () => {
   const canvaRef  = useRef<HTMLCanvasElement | null>(null)
-  const { status, setStatus, alterClock } = useGameStore()
+  const { status, findPath, setStatus, alterClock } = useGameStore()
   
   useEffect(()=>{
     if(status == 'playing'){
       const interval = setInterval(()=> {
         let second = useGameStore.getState().clock[0] 
         let miliseconds = useGameStore.getState().clock[1]
-        console.log("Current Time: ", second, miliseconds)
         
         if(miliseconds == 59){
           second = second + 1
@@ -35,11 +34,23 @@ export const MazeRoom : FC = () => {
     const context = canva.getContext('2d')
     if(!context) return
     
+    const dpr = window.devicePixelRatio || 1
+    const rect = canva.getBoundingClientRect()
+    console.log("dpr -> ", dpr)
+    console.log("rect -> ", rect)
+
+    canva.width = rect.width * dpr
+    canva.height = rect.height * dpr
+    context.scale(dpr, dpr)
+    
     context.fillStyle = '#252525'
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+    context.fillRect(0, 0, 800, 800)
+
+    findPath(context)
+
   }, [])
 
   return (
-    <canvas ref={canvaRef} className="rounded w-full h-full col-span-2"></canvas>
+    <canvas ref={canvaRef} className="rounded w-200 h-200 col-span-2" ></canvas>
   )
 }
