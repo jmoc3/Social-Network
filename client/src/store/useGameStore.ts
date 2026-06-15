@@ -7,8 +7,12 @@ type State = {
   canvasProportion: number[],
   gridProportion: number,
   gridEdge: number,
+  grid: number[][],
+  lastPotentialMovements: ('top'| 'right'| 'bottom'| 'left')[],
+  opsMovements: Record<string, string>,
+  invalidSteps: Set<string>,
   movementHistory: string[],
-  targetPoints: number[],
+  targetPoint: number[],
   mainPath: number[][],
 }
 
@@ -18,13 +22,18 @@ type Actions = {
   alterClock: (clock: number[]) => void,
   resetClock: () => void,
   pushStep: (step: number[]) => void,
-  validStep: (step: number[]) => boolean,
+  pushInvalidSteps: (movement: string) => void,
+  clearInvalidSteps: () => void,
+  validMovement: (position: number[], direction: string) =>  (number[] | boolean)[],
   pushDirection: (movement: string)=>void
   printBlock: (context: CanvasRenderingContext2D, vector?: number[], color?: string, mode?: "easy" | "normal") => void,
+  alterGrid: (position: number[], value: number) => void,
   init: () => void,
   findPath: (context: CanvasRenderingContext2D) => void,
-  setChosenClosePoint: ()=>boolean,
-  setDirection: ()=>void
+  setChosenClosePoint: () => string,
+  setLastPotentialMovement: () => State["lastPotentialMovements"],
+  alterMainPath: (mainPath: number[][]) => void,
+  targetReached: (step: number[]) => boolean,
 }
 
 export const useGameStore = create<State & Actions>() ((set, get) => ({
@@ -34,8 +43,17 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   canvasProportion: [800,800],
   gridProportion: 80,
   gridEdge: 0,
+  grid: [[]],
+  lastPotentialMovements: ['top', 'right', 'bottom', 'left'],
   movementHistory: [],
-  targetPoints : [],
+  opsMovements: {
+    'top':'bottom',
+    'right':'left',
+    'bottom':'top',
+    'left':'right'
+  },
+  invalidSteps: new Set(),
+  targetPoint : [],
   mainPath: [],
   setStatus: (status) => {
     set({ status })
@@ -46,15 +64,30 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   alterClock: (clock: number[]) => set({ clock }),
   resetClock: () => set({ clock: [0,0] }),
   pushStep: (step: number[])=> set((state)=>({mainPath: [...state.mainPath, step]})),
+  alterMainPath: (mainPath: number[][]) => set({mainPath}),
+  pushInvalidSteps: (movement: string) => set((state)=> ({invalidSteps: new Set([...state.invalidSteps, movement])})),
+  clearInvalidSteps: () => set({invalidSteps: new Set()}),
   pushDirection: (movement: string) => set((state) => ({movementHistory: [...state.movementHistory, movement]})),
   init: () => {
     const { canvasProportion, gridProportion } = get()
-    const gridEdge = (canvasProportion[0]/gridProportion)
+    const gridEdge = (canvasProportion[0]/gridProportion) - 1
+    const randomInitialY = Math.floor((Math.random() * 10)) | 1
+    const grid = Array.from({length: gridEdge}, ()=> Array(gridEdge).fill(0))
+    grid[0][randomInitialY] = 1
     set({ 
-      targetPoints : [gridEdge - 1, (Math.random() * 10) | 1],
-      mainPath: [[0, (Math.random() * 10) | 1]],
-      gridEdge
+      targetPoint : [gridEdge, Math.floor((Math.random() * 10))],
+      mainPath: [[0, randomInitialY]],
+      gridEdge,
+      grid 
     })
+  },
+  alterGrid: (position: number[], value: number) => {
+    const { grid } = get()
+    const [x, y] = position
+    const copy = structuredClone(grid)
+    console.log("Copy grid",position, copy)
+    copy[x][y] = value
+    set({grid: copy})
   },
   printBlock: (context: CanvasRenderingContext2D, vector: number[] = [1,1], color="white", mode:"easy" | "normal" = "easy") => {
     const proportion = mode == "easy" ? 80 : 20 
@@ -65,71 +98,94 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
     context.fillRect(x, y, proportion, proportion)
   },
   findPath: (context: CanvasRenderingContext2D) => {
-    const { targetPoints, init, setChosenClosePoint, printBlock } = get()
+    const { pushDirection, init, setChosenClosePoint, printBlock, pushStep, validMovement, pushInvalidSteps, alterGrid, clearInvalidSteps, alterMainPath, targetReached } = get()
     init()
-    console.log("target ", get().targetPoints)
-    const [x ,y] = get().mainPath[get().mainPath.length - 1]
-    printBlock(context, [x,y])
-    setChosenClosePoint()
-    // if(res) return clearInterval(interval)
+    const lastPoint = get().mainPath[get().mainPath.length - 1] as number[]
+    printBlock(context, lastPoint)
+    alterGrid(lastPoint, 1)
+
+    const interval = setInterval(()=>{
+
+      const currentPosition = get().mainPath[get().mainPath.length - 1]
+      const movement = setChosenClosePoint()
+      const [step, validStep] = validMovement(currentPosition, movement)
+      if(validStep){
+        pushDirection(movement)
+        pushStep(step as number[])
+        const color = ["red", "green", "white", "blue", "yellow", "brown"]
+        printBlock(context, step as number[], color[Math.floor(Math.random()*6)])
+        alterGrid(step as number[], 1)
+        const inTarget = targetReached(step as number[])
+        if(inTarget){
+          alert("Congratulations, you won")
+          return clearInterval(interval)
+        }
+        clearInvalidSteps()
+      }else{
+        pushInvalidSteps(movement)
+        if(get().invalidSteps.size == 4) {
+          alterMainPath(get().mainPath.slice(0, Math.floor(get().mainPath.length/2)))
+          return clearInterval(interval)
+        }
+      }
+    }, 10)
+    
+    console.log("Target ", get().targetPoint )
+    // for(const [index, x] of get().grid.entries()){
+    //   for (const y of x){
+    //     console.log([index, y])
+    //     if(y == 1) printBlock(context,[index, y] as number[])
+    //   }
+    // }
   },
   setChosenClosePoint: ()=> {
-    const { setDirection } = get()
-    setDirection()
+    const { setLastPotentialMovement } = get()
+    const potentialMovement = setLastPotentialMovement()
+    const randomPosition = Math.floor(Math.random() * potentialMovement.length)
+    const movement = potentialMovement[randomPosition]
+    
+    return movement
   },
-  setDirection:() => {
-    const { gridEdge, mainPath, targetPoints, movementHistory, validStep, pushStep, pushDirection, setDirection } = get()
-    const lastPosition = mainPath[mainPath.length-1]
-    const randomNumber = Math.random()
-    let step: number[] = []
-    if(randomNumber <= .25 && lastPosition[1] != 0){
-      //top
-      step = [lastPosition[0], lastPosition[1]-1]
-      if (step[0] == targetPoints[0] && step[1] == targetPoints[1]) return true
-      // if(!validStep(step)) return setDirection()    
-      pushStep(step)
-      pushDirection('top')
-    }
-    
-    if(randomNumber <= .50 && lastPosition[0] != gridEdge - 1){
-      //right
-      step = [lastPosition[0]+1, lastPosition[1]]
-      if (step[0] == targetPoints[0] && step[1] == targetPoints[1]) return true
-      // if(!validStep(step)) return setDirection()
-      pushStep(step)
-      pushDirection('right')
-    }
-    
-    if(randomNumber <= .75 && lastPosition[1] != gridEdge - 1){
-      //bottom
-      step = [lastPosition[0], lastPosition[1]+1]
-      if (step[0] == targetPoints[0] && step[1] == targetPoints[1]) return true
-      // if(!validStep(step)) return setDirection()
-      pushStep(step)
-      pushDirection('bottom')
+  validMovement: (position: number[], direction: string): (number[] | boolean)[] => {
+    const { mainPath, gridEdge } = get()
+    let step = [] as number[]
+    if(direction == 'top'){
+      step = [position[0], position[1] - 1]
     }
 
-    if(randomNumber <= 1 && lastPosition[0] != 0){
-      //left
-      step = [lastPosition[0]-1, lastPosition[1]]
-      if (step[0] == targetPoints[0] && step[1] == targetPoints[1]) return true
-      // if(!validStep(step)) return setDirection()
-      pushStep(step)
-      pushDirection('left')
+    if(direction == 'right'){
+      step = [position[0]+1, position[1]]
     }
-    console.log(step, targetPoints)
-    if(step[0] == targetPoints[0] && step[1] == targetPoints[1] ) return console.log("GOTHEM")
-    // setDirection()
+
+    if(direction == 'bottom'){
+      step = [position[0], position[1] + 1]
+    }
+
+    if(direction == 'left'){
+      step = [position[0] - 1, position[1]]
+    }
+
+    let validMovement = true
+    for(const [x, y] of mainPath){
+      if(!(step[0] == x && step[1] == y)) continue
+      validMovement = false
+      break
+    }
+
+    if(step[0] < 0 || step[1] < 0) validMovement = false
+    if(step[0] > gridEdge || step[1] > gridEdge) validMovement = false
+
+    return [step, validMovement]
   },
-  validStep: (step: number[]) => {
-    const { mainPath, targetPoints } = get()
-    const [x, y] = step
-    const [xTarget, yTarget] = targetPoints
-    if(x == xTarget && y == yTarget) return false
-    return true
-    // for(const [x, y] of mainPath){
-    //   if(x==step[0] && y==step[1]) return false
-    // }
-    // return true
+  setLastPotentialMovement: () => {
+    const { lastPotentialMovements } = get()
+    const availableMovementsUpdated  = lastPotentialMovements as State["lastPotentialMovements"]
+    return availableMovementsUpdated 
+  },
+  targetReached: (step: number[]) => {
+    const { targetPoint } = get()
+    const [x, y] = step 
+    if(x == targetPoint[0] && y == targetPoint[1]) return true
+    return false
   }
 }))
