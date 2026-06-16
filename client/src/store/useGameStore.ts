@@ -72,7 +72,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
     const { canvasProportion, gridProportion } = get()
     const gridEdge = (canvasProportion[0]/gridProportion) - 1
     const randomInitialY = Math.floor((Math.random() * 10)) | 1
-    const grid = Array.from({length: gridEdge}, ()=> Array(gridEdge).fill(0))
+    const grid = Array.from({length: gridEdge+1}, ()=> Array(gridEdge+1).fill(0))
     grid[0][randomInitialY] = 1
     set({ 
       targetPoint : [gridEdge, Math.floor((Math.random() * 10))],
@@ -85,7 +85,6 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
     const { grid } = get()
     const [x, y] = position
     const copy = structuredClone(grid)
-    console.log("Copy grid",position, copy)
     copy[x][y] = value
     set({grid: copy})
   },
@@ -130,7 +129,6 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
       }
     }, 10)
     
-    console.log("Target ", get().targetPoint )
     // for(const [index, x] of get().grid.entries()){
     //   for (const y of x){
     //     console.log([index, y])
