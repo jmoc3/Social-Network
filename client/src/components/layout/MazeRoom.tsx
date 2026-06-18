@@ -3,7 +3,7 @@ import { useEffect, useRef, type FC } from "react"
 
 export const MazeRoom : FC = () => {
   const canvaRef  = useRef<HTMLCanvasElement | null>(null)
-  const { status, findPath, setStatus, alterClock } = useGameStore()
+  const { grid_bg, status, findPath, setStatus, alterClock } = useGameStore()
   
   useEffect(()=>{
     if(status == 'playing'){
@@ -41,7 +41,7 @@ export const MazeRoom : FC = () => {
     canva.height = rect.height * dpr
     context.scale(dpr, dpr)
     
-    context.fillStyle = '#252525'
+    context.fillStyle = grid_bg
     context.fillRect(0, 0, 800, 800)
     console.log("Üsing effect y tal")
     findPath(context)
@@ -49,6 +49,8 @@ export const MazeRoom : FC = () => {
   }, [])
 
   return (
-    <canvas ref={canvaRef} className="rounded w-200 h-200 col-span-2" ></canvas>
+    <div className={`p-3 bg-[${grid_bg}]`}>
+      <canvas ref={canvaRef} className="rounded w-200 h-200 col-span-2" ></canvas>
+    </div>
   )
 }
