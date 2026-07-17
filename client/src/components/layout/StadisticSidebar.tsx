@@ -1,36 +1,83 @@
 import { useGameStore } from "@/store/useGameStore";
-import type { FC } from "react";
+import { useEffect, useRef, type FC } from "react";
 import { FaArrowsRotate } from "react-icons/fa6";
 
 export const StadisticSidebar : FC = () => {
   const { resetGame, clock } = useGameStore()
+  const buttonRef = useRef<HTMLButtonElement >(null)
+  
+  const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    resetGame()
+    event.currentTarget.blur()
+  }
 
+  useEffect(()=> {
+    const tabHandler = (event: KeyboardEvent) => {
+      if(event.key =='Tab'){
+        event.preventDefault()
+        buttonRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', tabHandler)
+  
+    return () => document.removeEventListener('keydown', tabHandler)
+  })
   return (
-    <div className="flex flex-col w-[33%] gap-6">
+    <div className="flex flex-col w-[40%] gap-6">
       <div className="flex flex-col items-center justify-center gap-2 w-fit h-26 bg-white rounded px-6">
         <h2 className="flex items-center gap-4 font-bold">
           Tiempo
-          <button tabIndex={1} onClick={resetGame} onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-            console.log(e.code)
-            if(e.code == 'Space') e.preventDefault()
-          } } className='rounded p-1 cursor-pointer bg-blue-200 text-blue-800 hover:bg-blue-900 hover:text-blue-100 hover:font-bold duration-100 transition'><FaArrowsRotate className="text-xs" /></button>
+          <button 
+            ref={buttonRef} 
+            tabIndex={1} 
+            onClick={onReset} 
+            onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                if(e.code == 'Space') e.preventDefault()
+              }} 
+            className='rounded p-1 cursor-pointer bg-blue-200 text-blue-800 hover:bg-blue-900 hover:text-blue-100 hover:font-bold duration-100 transition'>
+              <FaArrowsRotate className="text-xs" />
+          </button>
         </h2>
         <div className="w-full flex items-center justify-center select-none">
           <span className="text-2xl opacity-75"> {`${String(clock[0]).padStart(2, '0')}:${String(clock[1]).padStart(2, '0')}`} </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 w-full h-26 bg-white rounded p-6">
-        <h2 className="font-bold">Jugadores en sala</h2>
-        <div className="w-full h-full flex items-center justify-center ">
-          <span className="text-xs opacity-75"> ... </span>
+      <div className="flex flex-col gap-1 w-full bg-white rounded p-6">
+        <h2 className="font-bold">Estadisticas</h2>
+        <div className="caption-bottom text-xs opacity-50 grid">
+          <span> wpm = { 'word per minute / palabra por minuto' } </span>
+          <span> cpm = { 'character per minute / caracter por minuto' } </span>
         </div>
-      </div>
+        <div className="w-full h-full">
+          <table className="table-auto rounded w-full mt-1">  
+            <thead className="text-sm">
+              <tr className='border'>
+                <th className="w-1/4 py-1">#</th>
+                <th className="w-1/4">Tiempo</th>
+                <th className="w-1/4">WPM</th>
+                <th className="w-1/4">CPM</th>
+              </tr>
+            </thead>
+            <tbody className="text-xs">
+              {
+                [
+                  {id: 3, time: '02:34', wpm: 50, cpm: 46},
+                  {id: 2, time: '02:54', wpm: 45, cpm: 42},
+                  {id: 1, time: '03:04', wpm: 40, cpm: 36},
+                ].map((e, i) => (
+                  <tr key={i} className="text-center">
+                    <td className="w-1/4 py-1">{e.id}</td>
+                    <td className="w-1/4">{e.time}</td>
+                    <td className="w-1/4">{e.wpm}</td>
+                    <td className="w-1/4">{e.cpm}</td>
+                  </tr>
+                ))
+              }
 
-      <div className="flex flex-col gap-2 w-full h-26 bg-white rounded p-6">
-        <h2 className="font-bold">Estadisticas de la ronda</h2>
-        <div className="w-full h-full flex items-center justify-center ">
-          <span className="text-xs opacity-75"> ... </span>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

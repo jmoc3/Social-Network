@@ -6,26 +6,24 @@ const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 export const TypeSide: FC = () => {
 
   const {status, actualHistory, wordCounter, lineCounter, setActualHistory, setLineCounter, setWordCounter, setStatus, startClock, stopClock } = useGameStore()
-  const parts = text.split(".").map(text => text.trim()) 
-  const [state, setState] = useState<'good' | 'bad' >('good')
+  const parts = text.split(".").map(text => text.trim())
+  const [badWordIndex, setBadWordIndex] = useState<number[]>([]) 
+  
   useEffect(()=>{
-    const handleKeyDown = (e: KeyboardEvent) =>{
+    const handleKeyDown = (e: KeyboardEvent) =>{  
       const newKey = e.key == "Space" ? ' ' : e.key
     
       if(e.key == "Backspace"){
         const newHistory = actualHistory.slice(0, actualHistory.length - 1)
         setActualHistory(newHistory)
         setWordCounter(wordCounter - 1)
-        if(!text.toLowerCase().includes(newHistory)){ setState('bad') }
-        else{ setState('good') }
+        setBadWordIndex(badWordIndex.slice(0, badWordIndex.length - 1))
         return
       }
 
       if(e.key == 'Enter' && actualHistory == parts[lineCounter].toLowerCase()){
-        console.log(lineCounter, parts.length - 1)
         if(parts.length - 2 == lineCounter){
           setStatus('finished')
-          console.log("END")
           stopClock()
           return
         }
@@ -46,24 +44,37 @@ export const TypeSide: FC = () => {
       setActualHistory(newHistory)
       setWordCounter(wordCounter + 1)
       
-      if(!text.toLowerCase().includes(newHistory)){ setState('bad') }
-      else{ setState('good') }
+      if(!text.toLowerCase().includes(newHistory)){ setBadWordIndex([...badWordIndex, newHistory.length - 1]) }
     }
 
     window.addEventListener('keydown', handleKeyDown)
 
     return () => window.removeEventListener('keydown', handleKeyDown)
-  },[status, parts, lineCounter, wordCounter, actualHistory, setStatus, startClock, stopClock, setActualHistory, setLineCounter, setWordCounter])
+  },[
+      status,
+      parts,
+      lineCounter,
+      wordCounter,
+      actualHistory,
+      badWordIndex,
+      setBadWordIndex,
+      setStatus,
+      startClock,
+      stopClock,
+      setActualHistory,
+      setLineCounter,
+      setWordCounter
+    ]
+  )
   
-
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center" onKeyDown={()=> console.log("aaaaaaaaa")}>
+    <div className="w-full h-full flex flex-col justify-center items-center">
       {
         parts.map((line, index) => ( 
           <span key={index} className={`text-xl`}>
             {
               line.split("").map((letter, index2) =>(
-                <span className={`${index2 < wordCounter && lineCounter == index  ? `opacity-100 underline ${state != 'good' ? 'text-red-500' : ''}` : 'opacity-25'} `} key={index2}>{letter}</span>
+                <span className={`${index2 < wordCounter && lineCounter == index  ? `opacity-100 underline ${badWordIndex.includes(index2) ? 'text-red-500' : ''}` : 'opacity-25'} `} key={index2}>{letter}</span>
               ))
             }
           </span>
