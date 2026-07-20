@@ -4,8 +4,23 @@ import { useEffect, useState, type FC } from "react";
 const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 
 export const TypeSide: FC = () => {
+  const [sent, setSent] = useState<boolean>(false)
+  const {
+    status, 
+    clock,
+    actualHistory, 
+    wordCounter, 
+    lineCounter, 
+    setActualHistory, 
+    setLineCounter, 
+    setWordCounter, 
+    setStatus, 
+    startClock, 
+    stopClock,
+    doCalculation,
+    addToStatistics 
+  } = useGameStore()
 
-  const {status, actualHistory, wordCounter, lineCounter, setActualHistory, setLineCounter, setWordCounter, setStatus, startClock, stopClock } = useGameStore()
   const parts = text.split(".").map(text => text.trim())
   const [badWordIndex, setBadWordIndex] = useState<number[]>([]) 
   
@@ -21,16 +36,28 @@ export const TypeSide: FC = () => {
         return
       }
 
-      if(e.key == 'Enter' && actualHistory == parts[lineCounter].toLowerCase()){
-        if(parts.length - 2 == lineCounter){
+      if(e.key == 'Enter' && actualHistory == parts[lineCounter].toLowerCase() && status != 'finished'){
+        console.log(actualHistory)
+        if(parts.length - 2 == lineCounter && !sent){
           setStatus('finished')
           stopClock()
+          const { wpm, cpm } = doCalculation(actualHistory)
+          const time = `${(clock[0])}`.padStart(2, '0') + ':' + `${(clock[1])}`.padStart(2, '0')
+          console.log(time)
+          addToStatistics({
+            id:null,
+            userId: 1,
+            cpm,
+            wpm,
+            time,
+            updatedAt: new Date(),
+            createdAt: new Date()
+          })
+          setSent(true)
           return
         }
 
         setLineCounter(lineCounter + 1)
-        setWordCounter(0)
-        setActualHistory('')
         return
       }
 
@@ -52,18 +79,23 @@ export const TypeSide: FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   },[
       status,
+      clock,
+      sent,
       parts,
       lineCounter,
       wordCounter,
       actualHistory,
       badWordIndex,
       setBadWordIndex,
+      setSent,
       setStatus,
       startClock,
       stopClock,
       setActualHistory,
       setLineCounter,
-      setWordCounter
+      setWordCounter,
+      addToStatistics,
+      doCalculation
     ]
   )
   

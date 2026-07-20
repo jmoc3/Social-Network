@@ -3,7 +3,7 @@ import { useEffect, useRef, type FC } from "react";
 import { FaArrowsRotate } from "react-icons/fa6";
 
 export const StadisticSidebar : FC = () => {
-  const { resetGame, clock } = useGameStore()
+  const { playerStatistics, clock, resetGame } = useGameStore()
   const buttonRef = useRef<HTMLButtonElement >(null)
   
   const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -62,11 +62,7 @@ export const StadisticSidebar : FC = () => {
             </thead>
             <tbody className="text-xs">
               {
-                [
-                  {id: 3, time: '02:34', wpm: 50, cpm: 46},
-                  {id: 2, time: '02:54', wpm: 45, cpm: 42},
-                  {id: 1, time: '03:04', wpm: 40, cpm: 36},
-                ].map((e, i) => (
+                playerStatistics.map((e, i) => (
                   <tr key={i} className="text-center">
                     <td className="w-1/4 py-1">{e.id}</td>
                     <td className="w-1/4">{e.time}</td>
