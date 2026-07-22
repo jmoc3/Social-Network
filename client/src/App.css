@@ -141,3 +141,18 @@ html {
     @apply font-sans;
   }
 }
+
+@theme{
+
+  --animate-pointsUp: poinstUp 1s ease-in-out;
+
+  @keyframes poinstUp {
+    0% {
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
+}

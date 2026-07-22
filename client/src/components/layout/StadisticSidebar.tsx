@@ -52,7 +52,7 @@ export const StadisticSidebar : FC = () => {
         </div>
         <div className="w-full h-full">
           <table className="table-auto rounded w-full mt-1">  
-            <thead className="text-sm">
+            <thead className="text-sm mb-1">
               <tr className='border'>
                 <th className="w-1/4 py-1">#</th>
                 <th className="w-1/4">Tiempo</th>
@@ -62,18 +62,21 @@ export const StadisticSidebar : FC = () => {
             </thead>
             <tbody className="text-xs">
               {
-                playerStatistics.map((e, i) => (
+                playerStatistics.slice(0,5).map((e, i) => (
                   <tr key={i} className="text-center">
-                    <td className="w-1/4 py-1">{e.id}</td>
-                    <td className="w-1/4">{e.time}</td>
-                    <td className="w-1/4">{e.wpm}</td>
-                    <td className="w-1/4">{e.cpm}</td>
+                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.id}</td>
+                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
+                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.wpm}</td>
+                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.cpm}</td>
                   </tr>
                 ))
               }
 
             </tbody>
           </table>
+          {
+            playerStatistics.length > 5 ? <span className="w-full flex justify-center opacity-50">... </span> : <></>
+          }
         </div>
       </div>
     </div>
