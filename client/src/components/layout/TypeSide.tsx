@@ -1,12 +1,14 @@
 import { useGameStore } from "@/store/useGameStore";
 import { useEffect, useState, type FC } from "react";
-
+import { useProgresiveSound } from '@/hooks/useProgresiveSound'
 const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 const BASE = 2
+const randomColors = ['text-[#F4A300]', 'text-[#E63946]', 'text-[#3A0CA3]', 'text-[#4CC9F0]']
 
 export const TypeSide: FC = () => {
   const [sent, setSent] = useState<boolean>(false)
-  const [showAnimation, setShowAnimation] = useState<boolean>(false)
+  const [showAnimation, setShowAnimation] = useState<number[]>([])
+  const [pointColor, setPointColor] = useState<string>('')
   const {
     status, 
     gameData,
@@ -30,11 +32,10 @@ export const TypeSide: FC = () => {
 
   const parts = text.split(".").map(text => text.trim())
   const [badWordIndex, setBadWordIndex] = useState<Set<number>>(new Set()) 
+  const play = useProgresiveSound()
   
   useEffect(()=>{
     const handleKeyDown = (e: KeyboardEvent) =>{  
-      
-      if(showAnimation){ setShowAnimation(false) }
       const newKey = e.key == "Space" ? ' ' : e.key
       if(e.key == "Backspace" && letterCounter > 0){
         const actualLetterIndex = letterCounter - 1
@@ -81,7 +82,9 @@ export const TypeSide: FC = () => {
         const points = currentWord.length * BASE
         setGameData("points", gameData.points + points)
         setWordCounter(wordCounter + 1)
-        setShowAnimation(true)
+        setShowAnimation([...showAnimation, letterCounter])
+        setPointColor(randomColors[Math.floor(Math.random() * randomColors.length)])
+        play()
       }
 
       if(status != 'playing'){
@@ -121,7 +124,8 @@ export const TypeSide: FC = () => {
       setLineCounter,
       setLetterCounter,
       addToStatistics,
-      doCalculation
+      doCalculation,
+      play
     ]
   )
   
@@ -129,17 +133,17 @@ export const TypeSide: FC = () => {
     <div className="w-full h-full flex flex-col justify-center items-center">
       {
         parts.map((line, index) => ( 
-          <span key={index} className={`relative text-xl`}>
+          <span key={index} className={`text-xl`}>
             {
               line.split("").map((letter, index2) =>(
-                <span key={index2}>
+                <span key={index2} className={`relative ${index2}`}>
                   <span 
                     className={`${index2 < letterCounter && lineCounter == index  ? `opacity-100 underline ${[...badWordIndex].includes(index2) ? 'text-red-500' : ''}` : 'opacity-25'} `} 
                     >
                     {letter}
                   
                   </span>
-                  {letterCounter == index2 ? <span className={`absolute bottom-5 ${showAnimation ? 'aniamte-pointsUp' : ''} `} >+{gameData.points}</span> : <></>}
+                  {text[index2] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >+{gameData.points}</span> : <></>}
                 </span>
             ))
             }
