@@ -11,6 +11,7 @@ type State = {
   intervalId: number,
   lineCounter: number,
   wordCounter: number,
+  wordWithPoints: Record<string, number>
   letterCounter: number,
   actualHistory: string,
 }
@@ -47,6 +48,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   lineCounter: 0,
   letterCounter: 0,
   wordCounter: 0,
+  wordWithPoints: {},
   actualHistory: '',
   setStatus: (status) => {
     set({ status })

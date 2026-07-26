@@ -5,6 +5,7 @@ import { TypeSide } from "@/components/layout/TypeSide";
 import { StadisticSidebar } from "@/components/layout/StadisticSidebar";
 import { WelcomeModal } from "@/components/layout/WelcomeModal";
 import { WelcomeSide } from "@/components/layout/WelcomeSide";
+import { PointerIndicator } from "@/components/layout/PointerIndicator";
 
 export const HomePage: FC = () => {
   return (
@@ -21,7 +22,11 @@ export const HomePage: FC = () => {
             </div>
           </div>
         </div>
-        <TypeSide />
+        <div className="relative grid w-full h-full justify-center">
+          <PointerIndicator />
+          <TypeSide />
+          <span className="orejarena absolute bottom-10 left-1/2 translate-x-[-50%]">ホセ・オレハレナ</span>
+        </div>
         <StadisticSidebar />
       </div>
     </div>
