@@ -2,38 +2,52 @@ import type { UserStatistics } from '@/types'
 import { create } from 'zustand'
 
 type State = {
-  status: "playing" | "finished",
+  currentText: string
+  showAnimation: number[]
+  showPointsAnimation: boolean
+  status: "playing" | "finished"
   gameData: {
     points: number
-  },
-  playerStatistics: UserStatistics[],
-  clock: number[],
-  intervalId: number,
-  lineCounter: number,
-  wordCounter: number,
-  wordWithPoints: Record<string, number>
-  letterCounter: number,
-  actualHistory: string,
+  }
+  playerStatistics: UserStatistics[]
+  clock: number[]
+  intervalId: number
+  wordCounter: number
+  wordWithPoints: Record<number, number>
+  letterCounter: number
+  actualHistory: string
+  currentStreak: number
+  goodLetters: number[]
+  badLetters: number[]
 }
 
 type Actions = {
-  setStatus: (status: State["status"]) => void,
-  startGame: () => void,
-  stopGame: () => void,
-  resetGame: () => void,
-  startClock: () => void,
-  stopClock: () => void,
-  resetClock: () => void,
-  setGameData: (key:string, value: string | number) => void,
-  setLineCounter: (lineCounter: number) => void,
-  setWordCounter: (wordCounter: number) => void,
-  setLetterCounter: (letterCounter: number) => void,
-  setActualHistory: (actualHistory: string) => void,
-  addToStatistics: (data: UserStatistics) => void, 
-  doCalculation: (sentence: string) => {wpm:number, cpm: number},
+  setStatus: (status: State["status"]) => void
+  startGame: () => void
+  stopGame: () => void
+  resetGame: () => void
+  startClock: () => void
+  stopClock: () => void
+  resetClock: () => void
+  setGameData: (key:string, value: string | number) => void
+  setWordCounter: (wordCounter: number) => void
+  setLetterCounter: (letterCounter: number) => void
+  setActualHistory: (actualHistory: string) => void
+  addToStatistics: (data: UserStatistics) => void
+  doCalculation: (sentence: string) => {wpm:number, cpm: number}
+  resetWordPoints: () => void
+  setCurrentStreak: (currentStreak: number) => void
+  resetPoints: () => void
+  setGoodLetters: (goodLetters: number[]) => void
+  setBadLetters: (badLetters: number[]) => void
+  switchShowPointsAnimation: () => void
+  setShowAnimation: (showAnimation: number[]) => void
 }
 
 export const useGameStore = create<State & Actions>() ((set, get) => ({
+  currentText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non erat sit amet est tempor varius. Aenean gravida quam dui, eget convallis odio suscipit ut.",
+  showPointsAnimation: false,
+  showAnimation: [],
   status: "finished",
   gameData: {
     points: 0
@@ -45,24 +59,30 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   ],
   clock: [0,0],
   intervalId:0,
-  lineCounter: 0,
   letterCounter: 0,
   wordCounter: 0,
   wordWithPoints: {},
   actualHistory: '',
-  setStatus: (status) => {
-    set({ status })
-  },
+  currentStreak: 0,
+  goodLetters: [],
+  badLetters: [],
+  setStatus: (status) => ( set({ status }) ),
   startGame: () => set({ status: "playing" }),
   stopGame: () => set({ status: "finished" }),
   resetGame: () => {
-    const { setLineCounter, setLetterCounter, stopGame, stopClock, resetClock, setActualHistory } = get()
-    setLineCounter(0)
+    const { setLetterCounter, setWordCounter, stopGame, stopClock, resetClock, resetWordPoints, setActualHistory, resetPoints, setCurrentStreak, setGoodLetters, setBadLetters, setShowAnimation } = get()
     setLetterCounter(0)
+    setWordCounter(0)
     stopGame()
     stopClock()
     resetClock()
     setActualHistory('')
+    resetPoints()
+    resetWordPoints()
+    setCurrentStreak(0)
+    setGoodLetters([])
+    setBadLetters([])
+    setShowAnimation([])
     set({ status: "finished", clock: [0,0] })
   },
   startClock: () => {
@@ -100,21 +120,10 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
       }
     })
   },
-  setLineCounter: (lineCounter) => {
-    set({ lineCounter })
-  },
-  setWordCounter: (wordCounter) => {
-    set({ wordCounter })
-  },
-  setLetterCounter: (letterCounter) => {
-    set({ letterCounter })
-  },
-  setActualHistory: (actualHistory) => {
-    set({ actualHistory })
-  },
-  addToStatistics: (data: UserStatistics) => {
-    set({ playerStatistics: [data, ...get().playerStatistics] })
-  },
+  setWordCounter: (wordCounter) => ( set({ wordCounter }) ),
+  setLetterCounter: (letterCounter) => ( set({ letterCounter }) ),
+  setActualHistory: (actualHistory) => ( set({ actualHistory }) ),
+  addToStatistics: (data: UserStatistics) => ( set({ playerStatistics: [data, ...get().playerStatistics] }) ),
   doCalculation: (sentence: string) : {wpm: number, cpm: number} => {
     const { clock } = get()
 
@@ -124,4 +133,15 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
 
     return { wpm, cpm }
   },
+  resetPoints: () => {
+    set({ gameData: {
+      points: 0
+    }})
+  },
+  resetWordPoints: () => ( set({wordWithPoints: {}}) ),
+  setCurrentStreak: (currentStreak: number) => ( set({ currentStreak }) ),
+  setBadLetters: (badLetters: number[]) => ( set({ badLetters }) ),
+  setGoodLetters: (goodLetters: number[]) => ( set({ goodLetters }) ),
+  switchShowPointsAnimation: () => ( set({ showPointsAnimation: !get().showPointsAnimation }) ),
+  setShowAnimation: (showAnimation: number[]) => (set({ showAnimation }))
 }))

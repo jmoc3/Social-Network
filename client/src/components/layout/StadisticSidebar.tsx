@@ -20,7 +20,6 @@ export const StadisticSidebar : FC = () => {
     }
 
     document.addEventListener('keydown', tabHandler)
-  
     return () => document.removeEventListener('keydown', tabHandler)
   })
   return (
@@ -45,7 +44,7 @@ export const StadisticSidebar : FC = () => {
       </div>
 
       <div className="flex flex-col gap-1 w-full bg-white rounded p-6">
-        <h2 className="font-bold">Estadisticas</h2>
+        <h2 className="font-bold">Ultimas Estadisticas</h2>
         <div className="caption-bottom text-xs opacity-50 grid">
           <span> wpm = { 'word per minute / palabra por minuto' } </span>
           <span> cpm = { 'character per minute / caracter por minuto' } </span>

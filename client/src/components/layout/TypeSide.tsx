@@ -1,15 +1,14 @@
 import { useGameStore } from "@/store/useGameStore";
 import { useEffect, useState, type FC } from "react";
 import { useProgresiveSound } from '@/hooks/useProgresiveSound'
-const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non erat sit amet est tempor varius. Aenean gravida quam dui, eget convallis odio suscipit ut."
 const BASE = 2
 const randomColors = ['text-[#F4A300]', 'text-[#E63946]', 'text-[#3A0CA3]', 'text-[#4CC9F0]']
 
 export const TypeSide: FC = () => {
   const [sent, setSent] = useState<boolean>(false)
-  const [showAnimation, setShowAnimation] = useState<number[]>([])
   const [pointColor, setPointColor] = useState<string>('')
   const {
+    currentText,
     status, 
     gameData,
     clock,
@@ -17,21 +16,28 @@ export const TypeSide: FC = () => {
     wordCounter,
     wordWithPoints,
     letterCounter, 
-    lineCounter, 
     playerStatistics,
+    currentStreak,
+    goodLetters,
+    badLetters,
+    showAnimation,
     setGameData,
     setActualHistory, 
-    setLineCounter, 
     setWordCounter,
     setLetterCounter, 
     setStatus, 
     startClock, 
     stopClock,
     doCalculation,
-    addToStatistics 
+    addToStatistics,
+    setCurrentStreak,
+    setBadLetters,
+    setGoodLetters,
+    switchShowPointsAnimation,
+    setShowAnimation
   } = useGameStore()
 
-  const parts = text.split(".").map(text => text.trim())
+  const parts = currentText.split(".").map(text => text.trim())
   const [badWordIndex, setBadWordIndex] = useState<Set<number>>(new Set())
   const [wordPoint, setWordPoint] = useState<number>() 
   const play = useProgresiveSound()
@@ -40,23 +46,21 @@ export const TypeSide: FC = () => {
     const handleKeyDown = (e: KeyboardEvent) =>{  
       const newKey = e.key == "Space" ? ' ' : e.key
       if(e.key == "Backspace" && letterCounter > 0){
-        const actualLetterIndex = letterCounter - 1
+        const behindLetterIndex = letterCounter - 1
         
-        if (actualHistory[actualLetterIndex] == ' ' && wordCounter > 0 && Object.keys(wordWithPoints).includes(actualHistory.split(" ")[wordCounter])){ 
-          delete wordWithPoints[actualHistory.split(" ")[wordCounter]]
-          setWordCounter(wordCounter - 1) 
-        }
+        if(badLetters.includes(behindLetterIndex)){ setBadLetters(badLetters.filter(e => e != behindLetterIndex)) }
+        if (actualHistory[behindLetterIndex] == ' ' && wordCounter > 0 && Object.keys(wordWithPoints).includes(`${wordCounter - 1}`)){ setWordCounter(wordCounter - 1) }
         
-        if([...badWordIndex].includes(actualLetterIndex)){ setBadWordIndex(new Set([...badWordIndex].filter(e => e != actualLetterIndex))) }
+        if([...badWordIndex].includes(behindLetterIndex)){ setBadWordIndex(new Set([...badWordIndex].filter(e => e != behindLetterIndex))) }
 
         const newHistory = actualHistory.slice(0, actualHistory.length - 1)
         setActualHistory(newHistory)
-        setLetterCounter(actualLetterIndex) 
+        setLetterCounter(behindLetterIndex) 
 
         return
       }
 
-      if(e.key == 'Enter' && actualHistory == text && status != 'finished'){
+      if(e.key == 'Enter' && status != 'finished'){
         setStatus('finished')
         stopClock()
         const { wpm, cpm } = doCalculation(actualHistory)
@@ -75,19 +79,30 @@ export const TypeSide: FC = () => {
       }
 
       if(e.key.length > 1 && e.key != 'Space') return
-      const currentWord = actualHistory.split(" ")[wordCounter]
-      const targetWord = text.split(" ")[wordCounter]
+      const currentWord = actualHistory.split(" ")[wordCounter] 
+      const targetWord = currentText.split(" ")[wordCounter]
+      console.log(actualHistory.split(" "), currentWord.length > targetWord.length, wordCounter)
+      if(currentWord.length == targetWord.length && 
+          e.key == ' '
+        ){
+        
+        if(!Object.keys(wordWithPoints).includes(`${wordCounter}`)){
+          wordWithPoints[wordCounter] = 1
+          
+          const goodLetters = currentWord.split("").filter((e, i) => e == targetWord[i]).length
+          const points = Math.round(goodLetters * BASE * (currentStreak || 1))
+          
+          setWordPoint(points)
+          setGameData("points", gameData.points + points)
+          setShowAnimation([...showAnimation, letterCounter])
+          setPointColor(randomColors[Math.floor(Math.random() * randomColors.length)])
+          switchShowPointsAnimation()
+          play()
 
-      console.log(" -> ", wordWithPoints, targetWord, wordCounter)
-      if(currentWord == targetWord && e.key == ' ' && !Object.keys(wordWithPoints).includes(currentWord)){
-        wordWithPoints[currentWord] = 1
-        const points = currentWord.length * BASE
-        setWordPoint(points)
-        setGameData("points", gameData.points + points)
+          setCurrentStreak(currentStreak + 1)
+        }
+
         setWordCounter(wordCounter + 1)
-        setShowAnimation([...showAnimation, letterCounter])
-        setPointColor(randomColors[Math.floor(Math.random() * randomColors.length)])
-        play()
       }
 
       if(status != 'playing'){
@@ -96,25 +111,38 @@ export const TypeSide: FC = () => {
       }
       const newHistory = actualHistory + newKey
       setActualHistory(newHistory)
-      if(text[letterCounter] != newHistory[letterCounter]){ setBadWordIndex(new Set([...badWordIndex, newHistory.length - 1])) }
+      if(currentText[letterCounter] != newHistory[letterCounter]){ setBadWordIndex(new Set([...badWordIndex, newHistory.length - 1])) }
       setLetterCounter(letterCounter + 1)
+
+      if(e.key != currentText[letterCounter]){
+        setCurrentStreak(0)
+        setBadLetters([...badLetters, letterCounter])
+        return
+      }
+    
+      setGoodLetters([...goodLetters, letterCounter])
+      console.log(actualHistory)
     }
     window.addEventListener('keydown', handleKeyDown)
 
     return () => window.removeEventListener('keydown', handleKeyDown)
   },[
+      currentText,
       status,
       showAnimation,
       gameData,
       clock,
       sent,
       parts,
-      lineCounter,
       wordCounter,
       letterCounter,
       actualHistory,
       badWordIndex,
       playerStatistics,
+      wordWithPoints,
+      currentStreak,
+      goodLetters,
+      badLetters,
       setShowAnimation,
       setStatus,
       setGameData,
@@ -125,10 +153,13 @@ export const TypeSide: FC = () => {
       stopClock,
       setActualHistory,
       setWordCounter,
-      setLineCounter,
       setLetterCounter,
       addToStatistics,
       doCalculation,
+      setCurrentStreak,
+      setBadLetters,
+      setGoodLetters,
+      switchShowPointsAnimation,
       play
     ]
   )
@@ -137,7 +168,7 @@ export const TypeSide: FC = () => {
     <div className="w-full h-full flex flex-col justify-center items-center">
       <span className="text-2xl">
         {
-          text.split("").map((letter, index2) =>(
+          currentText.split("").map((letter, index2) =>(
             <span key={index2} className={`relative ${index2}`}>
               <span 
                 className={`${index2 < letterCounter  ? `opacity-100 underline ${[...badWordIndex].includes(index2) ? 'text-red-500' : ''}` : 'opacity-25'}`} 
@@ -145,7 +176,8 @@ export const TypeSide: FC = () => {
                 {letter}
               
               </span>
-              {text[index2] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >+{wordPoint}</span> : <></>}
+              {currentText[index2] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >+{wordPoint}</span> : <></>}
+              {currentText[index2] == " " ? <span className={`absolute -left-16 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >x{currentStreak}</span> : <></>}
             </span>
           ))
         }

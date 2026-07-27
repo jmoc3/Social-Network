@@ -1,11 +1,30 @@
 import { useGameStore } from "@/store/useGameStore"
 
 export const PointerIndicator = () => {
-  const { gameData } = useGameStore()
+  const {  goodLetters, badLetters, gameData, currentStreak } = useGameStore()
+
   return (
-    <div className="absolute left-1/2 translate-x-[-50%] top-25 grid gap-2 px-12 py-6 border border-b-blue-600 rounded">
-      <span className="text-3xl font-bold">Points</span>
-      <span className="text-2xl text-center">{gameData.points}</span>
+    <div className="absolute left-1/2 translate-x-[-50%] top-25 space-y-4">
+      <div className="grid gap-2 px-10 py-4 border border-b-blue-600 rounded">
+        <span className="text-2xl font-bold">Puntos</span>
+        <span className="text-xl text-center">{gameData.points}</span>
+        {/* {currentText[letterCounter] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showPointsAnimation  ? `animate-pointsUp ` : ''}`} >+{wordPoint}</span> : <></>} */}
+      </div>
+      <div>
+        <div className="flex gap-2">
+          <span className="">Racha actual: </span>
+          <span className={`text-blue-800`} >x{currentStreak}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="">Palabras mal escritas: </span>
+          <span className={`text-red-800`} >{badLetters.length}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="">Precision: </span>
+          <span className={`text-red-800`} >{goodLetters.length == 0 && badLetters.length == 0 ? 100 : Math.round(goodLetters.length / (badLetters.length + goodLetters.length) * 100)}%</span>
+        </div>
+      </div>
     </div>
+
   )
 }
