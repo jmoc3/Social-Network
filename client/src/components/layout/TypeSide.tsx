@@ -1,6 +1,7 @@
 import { useGameStore } from "@/store/useGameStore";
 import { useEffect, useState, type FC } from "react";
 import { useProgresiveSound } from '@/hooks/useProgresiveSound'
+import { useErrorSound } from "@/hooks/useErrorSound";
 const BASE = 2
 const randomColors = ['text-[#F4A300]', 'text-[#E63946]', 'text-[#3A0CA3]', 'text-[#4CC9F0]']
 
@@ -41,6 +42,7 @@ export const TypeSide: FC = () => {
   const [badWordIndex, setBadWordIndex] = useState<Set<number>>(new Set())
   const [wordPoint, setWordPoint] = useState<number>() 
   const play = useProgresiveSound()
+  const playError = useErrorSound()
   
   useEffect(()=>{
     const handleKeyDown = (e: KeyboardEvent) =>{  
@@ -66,7 +68,7 @@ export const TypeSide: FC = () => {
         const { wpm, cpm } = doCalculation(actualHistory)
         const time = `${(clock[0])}`.padStart(2, '0') + ':' + `${(clock[1])}`.padStart(2, '0')
         addToStatistics({
-          id: playerStatistics[0].id! + 1,
+          id: playerStatistics[playerStatistics.length - 1].id! + 1,
           userId: 1,
           cpm,
           wpm,
@@ -117,6 +119,7 @@ export const TypeSide: FC = () => {
       if(e.key != currentText[letterCounter]){
         setCurrentStreak(0)
         setBadLetters([...badLetters, letterCounter])
+        playError()
         return
       }
     
@@ -160,7 +163,8 @@ export const TypeSide: FC = () => {
       setBadLetters,
       setGoodLetters,
       switchShowPointsAnimation,
-      play
+      play,
+      playError
     ]
   )
   
@@ -171,7 +175,7 @@ export const TypeSide: FC = () => {
           currentText.split("").map((letter, index2) =>(
             <span key={index2} className={`relative ${index2}`}>
               <span 
-                className={`${index2 < letterCounter  ? `opacity-100 underline ${[...badWordIndex].includes(index2) ? 'text-red-500' : ''}` : 'opacity-25'}`} 
+                className={`${index2 < letterCounter  ? `relative opacity-100 underline ${[...badWordIndex].includes(index2) ? 'text-red-500 animate-wrongWord' : ''}` : 'opacity-25'}`} 
                 >
                 {letter}
               

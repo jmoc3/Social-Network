@@ -145,9 +145,10 @@ html {
 
 @theme{
 
-  --animate-pointsUp: poinstUp .8s ease-in-out;
+  --animate-pointsUp: pointsUp .8s ease-in-out;
+  --animate-wrongWord: wrongWord .8s ease-in-out;
 
-  @keyframes poinstUp {
+  @keyframes pointsUp {
     0% {
       transform: translateY(30px);
       opacity: 0;
@@ -165,6 +166,13 @@ html {
       opacity: 0;
     }
   }
+
+  @keyframes wrongWord {
+    0%, 100% { left: 0; right: 0; }
+    10%, 30%, 50%, 70%, 90% { left: -3px; right: -2px; }
+    20%, 40%, 60%, 80% { left: 3px; right: 2px; }
+  }
+
 }
 
 .orejarena {

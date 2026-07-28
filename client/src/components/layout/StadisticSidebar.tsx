@@ -61,7 +61,7 @@ export const StadisticSidebar : FC = () => {
             </thead>
             <tbody className="text-xs">
               {
-                playerStatistics.slice(0,5).map((e, i) => (
+                playerStatistics.slice(-5).map((e, i) => (
                   <tr key={i} className="text-center">
                     <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.id}</td>
                     <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
@@ -73,9 +73,7 @@ export const StadisticSidebar : FC = () => {
 
             </tbody>
           </table>
-          {
-            playerStatistics.length > 5 ? <span className="w-full flex justify-center opacity-50">... </span> : <></>
-          }
+          
         </div>
       </div>
     </div>
