@@ -7,7 +7,7 @@ import (
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/http/middleware"
 )
 
-func NewRouter(postHandler *handler.PostHandler, userHandler *handler.UserHandler) *fiber.App {
+func NewRouter(statisticHandler *handler.StatisticHanlder, userHandler *handler.UserHandler) *fiber.App {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:5173",
@@ -19,17 +19,18 @@ func NewRouter(postHandler *handler.PostHandler, userHandler *handler.UserHandle
 	api := app.Group("/api/v1")
 
 	registerUserRoutes(api, userHandler)
-	registerPostRoutes(api, postHandler)
+	registerStatisticRoutes(api, statisticHandler)
 
 	return app
 }
 
-func registerPostRoutes(router fiber.Router, h *handler.PostHandler) {
-	posts := router.Group("/posts")
-	posts.Get("/", h.FindAll)
-	posts.Get("/:id", h.FindOne)
-	posts.Post("/", h.Save)
-	posts.Patch("/:id", h.Update)
+func registerStatisticRoutes(router fiber.Router, h *handler.StatisticHanlder) {
+	statistics := router.Group("/statistics")
+	statistics.Get("/", h.FindAll)
+	statistics.Get("/:id", h.FindOne)
+	statistics.Post("/", h.Save)
+	statistics.Patch("/:id", h.Update)
+	statistics.Delete("/:id", h.Delete)
 }
 
 func registerUserRoutes(router fiber.Router, h *handler.UserHandler) {

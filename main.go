@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/jmoc3/Social-Network.git/internal/domain/post"
+	"github.com/jmoc3/Social-Network.git/internal/domain/statistic"
 	"github.com/jmoc3/Social-Network.git/internal/domain/user"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/database"
 	"github.com/jmoc3/Social-Network.git/internal/infrastructure/http"
@@ -38,14 +38,14 @@ func main() {
 	postgres_cli := database.NewPostgressConnection(POSTGRES_URI)
 	defer postgres_cli.Conn.Close(context.Background())
 
-	postRepo := mongo.NewPostRepository(mongo_client)
-	postService := post.NewService(postRepo)
-	postHandler := handler.NewPostHandler(postService)
+	statisticRepo := mongo.NewStatisticRepository(mongo_client)
+	statisticService := statistic.NewService(statisticRepo)
+	statisticHandler := handler.NewStatisticHandler(statisticService)
 
 	userRepo := postgres.NewUserRepository(postgres_cli)
 	userService := user.NewService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	app := http.NewRouter(postHandler, userHandler)
+	app := http.NewRouter(statisticHandler, userHandler)
 	log.Fatal(app.Listen(":" + PORT))
 }
