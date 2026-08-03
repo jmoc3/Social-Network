@@ -29,6 +29,7 @@ func registerStatisticRoutes(router fiber.Router, h *handler.StatisticHanlder) {
 	statistics.Get("/", h.FindAll)
 	statistics.Get("/:id", h.FindOne)
 	statistics.Post("/", h.Save)
+	statistics.Get("/user/:user_id", h.FindByUser)
 	statistics.Patch("/:id", h.Update)
 	statistics.Delete("/:id", h.Delete)
 }

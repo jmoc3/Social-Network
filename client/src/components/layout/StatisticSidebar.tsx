@@ -1,11 +1,13 @@
 import { useGameStore } from "@/store/useGameStore";
+import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useRef, type FC } from "react";
 import { FaArrowsRotate } from "react-icons/fa6";
 
-export const StadisticSidebar : FC = () => {
-  const { playerStatistics, clock, resetGame } = useGameStore()
+export const StatisticSidebar : FC = () => {
+  const { clock, resetGame } = useGameStore()
+  const { userStatistics } = useUserStore()
   const buttonRef = useRef<HTMLButtonElement >(null)
-  
+  console.log(userStatistics)
   const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     resetGame()
     event.currentTarget.blur()
@@ -61,14 +63,19 @@ export const StadisticSidebar : FC = () => {
             </thead>
             <tbody className="text-xs">
               {
-                playerStatistics.slice(-5).map((e, i) => (
-                  <tr key={i} className="text-center">
-                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.id}</td>
-                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
-                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.wpm}</td>
-                    <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.cpm}</td>
-                  </tr>
-                ))
+                userStatistics.length > 0 ? 
+                  (
+                    userStatistics.slice(-5).map((e, i) => (
+                      <tr key={i} className="text-center">
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{userStatistics.length - (i )}</td>
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.wpm}</td>
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.cpm}</td>
+                      </tr>
+                    ))
+                  )
+                  : 
+                  <></>
               }
 
             </tbody>

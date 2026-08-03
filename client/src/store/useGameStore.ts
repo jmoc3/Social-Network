@@ -1,4 +1,3 @@
-import type { UserStatistics } from '@/types'
 import { create } from 'zustand'
 
 type State = {
@@ -9,7 +8,6 @@ type State = {
   gameData: {
     points: number
   }
-  playerStatistics: UserStatistics[]
   clock: number[]
   intervalId: number
   wordCounter: number
@@ -33,7 +31,6 @@ type Actions = {
   setWordCounter: (wordCounter: number) => void
   setLetterCounter: (letterCounter: number) => void
   setActualHistory: (actualHistory: string) => void
-  addToStatistics: (data: UserStatistics) => void
   doCalculation: (sentence: string) => {wpm:number, cpm: number}
   resetWordPoints: () => void
   setCurrentStreak: (currentStreak: number) => void
@@ -52,11 +49,6 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   gameData: {
     points: 0
   },
-  playerStatistics:[
-    {id: 1, userId: 1, time: '03:04', wpm: 40, cpm: 36, updatedAt: new Date(), createdAt: new Date()},
-    {id: 2, userId: 1, time: '02:54', wpm: 45, cpm: 42, updatedAt: new Date(), createdAt: new Date()},
-    {id: 3, userId: 1, time: '02:34', wpm: 50, cpm: 46, updatedAt: new Date(), createdAt: new Date()},
-  ],
   clock: [0,0],
   intervalId:0,
   letterCounter: 0,
@@ -123,7 +115,6 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   setWordCounter: (wordCounter) => ( set({ wordCounter }) ),
   setLetterCounter: (letterCounter) => ( set({ letterCounter }) ),
   setActualHistory: (actualHistory) => ( set({ actualHistory }) ),
-  addToStatistics: (data: UserStatistics) => ( set({ playerStatistics: [...get().playerStatistics, data] }) ),
   doCalculation: (sentence: string) : {wpm: number, cpm: number} => {
     const { clock } = get()
 

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoc3/Social-Network.git/internal/domain/statistic"
 )
@@ -27,6 +29,18 @@ func (h *StatisticHanlder) FindOne(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"statistic": statistic})
 }
 
+func (h *StatisticHanlder) FindByUser(c *fiber.Ctx) error {
+	ctx := c.Context()
+	userId := c.Params("user_id")
+
+	statistics, err := h.service.FindByUser(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(fiber.Map{"statistics": statistics})
+}
+
 func (h *StatisticHanlder) FindAll(c *fiber.Ctx) error {
 	ctx := c.Context()
 
@@ -43,11 +57,14 @@ func (h *StatisticHanlder) Save(c *fiber.Ctx) error {
 
 	var statistic statistic.Statistic
 	if err := c.BodyParser(&statistic); err != nil {
+		fmt.Printf("BodyParser err: %+v\n", err) // Debugging line
+
 		return nil
 	}
 
 	insertedId, err := h.service.Save(ctx, &statistic)
 	if err != nil {
+		fmt.Printf("insertedId err: %+v\n", err) // Debugging line
 		return err
 	}
 

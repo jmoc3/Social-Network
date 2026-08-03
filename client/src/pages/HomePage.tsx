@@ -1,13 +1,26 @@
 // import { Header } from "@/components/layout/Header";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 import { MainMessageSidebar } from "@/components/layout/MainMessageSidebar";
 import { TypeSide } from "@/components/layout/TypeSide";
-import { StadisticSidebar } from "@/components/layout/StadisticSidebar";
+import { StatisticSidebar } from "@/components/layout/StatisticSidebar";
 import { WelcomeModal } from "@/components/layout/WelcomeModal";
 import { WelcomeSide } from "@/components/layout/WelcomeSide";
 import { PointerIndicator } from "@/components/layout/PointerIndicator";
+import { useUserStore } from "@/store/useUserStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export const HomePage: FC = () => {
+  const { getUserStatistics } = useUserStore()
+  const { user } = useAuthStore()
+
+  useEffect(() => {
+    const fetching = async () => {
+      getUserStatistics(+user!.user_id)
+    }
+
+    fetching()
+  }, [user, getUserStatistics])
+
   return (
     <div className="flex flex-col w-full h-screen">  
       <WelcomeModal />
@@ -27,7 +40,7 @@ export const HomePage: FC = () => {
           <TypeSide />
           <span className="orejarena absolute bottom-10 left-1/2 translate-x-[-50%]">ホセ・オレハレナ</span>
         </div>
-        <StadisticSidebar />
+        <StatisticSidebar />
       </div>
     </div>
   )

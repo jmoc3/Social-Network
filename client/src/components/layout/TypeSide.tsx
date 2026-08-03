@@ -2,12 +2,15 @@ import { useGameStore } from "@/store/useGameStore";
 import { useEffect, useState, type FC } from "react";
 import { useProgresiveSound } from '@/hooks/useProgresiveSound'
 import { useErrorSound } from "@/hooks/useErrorSound";
+import { useUserStore } from "@/store/useUserStore";
+import { useAuthStore } from "@/store/useAuthStore";
 const BASE = 2
 const randomColors = ['text-[#F4A300]', 'text-[#E63946]', 'text-[#3A0CA3]', 'text-[#4CC9F0]']
 
 export const TypeSide: FC = () => {
   const [sent, setSent] = useState<boolean>(false)
   const [pointColor, setPointColor] = useState<string>('')
+  const { user } = useAuthStore()
   const {
     currentText,
     status, 
@@ -17,7 +20,6 @@ export const TypeSide: FC = () => {
     wordCounter,
     wordWithPoints,
     letterCounter, 
-    playerStatistics,
     currentStreak,
     goodLetters,
     badLetters,
@@ -30,13 +32,14 @@ export const TypeSide: FC = () => {
     startClock, 
     stopClock,
     doCalculation,
-    addToStatistics,
     setCurrentStreak,
     setBadLetters,
     setGoodLetters,
     switchShowPointsAnimation,
     setShowAnimation
   } = useGameStore()
+
+  const { addStatisticsFront, addStatisticsBack } = useUserStore()
 
   const parts = currentText.split(".").map(text => text.trim())
   const [badWordIndex, setBadWordIndex] = useState<Set<number>>(new Set())
@@ -67,15 +70,17 @@ export const TypeSide: FC = () => {
         stopClock()
         const { wpm, cpm } = doCalculation(actualHistory)
         const time = `${(clock[0])}`.padStart(2, '0') + ':' + `${(clock[1])}`.padStart(2, '0')
-        addToStatistics({
-          id: playerStatistics[playerStatistics.length - 1].id! + 1,
-          userId: 1,
+        const statistic = {
+          user_id: user!.user_id,
           cpm,
           wpm,
           time,
           updatedAt: new Date(),
           createdAt: new Date()
-        })
+        }
+        console.log(statistic)
+        addStatisticsFront(statistic)
+        addStatisticsBack(statistic)
         setSent(true)
         return
       }
@@ -83,7 +88,6 @@ export const TypeSide: FC = () => {
       if(e.key.length > 1 && e.key != 'Space') return
       const currentWord = actualHistory.split(" ")[wordCounter] 
       const targetWord = currentText.split(" ")[wordCounter]
-      console.log(actualHistory.split(" "), currentWord.length > targetWord.length, wordCounter)
       if(currentWord.length == targetWord.length && 
           e.key == ' '
         ){
@@ -124,12 +128,12 @@ export const TypeSide: FC = () => {
       }
     
       setGoodLetters([...goodLetters, letterCounter])
-      console.log(actualHistory)
     }
     window.addEventListener('keydown', handleKeyDown)
 
     return () => window.removeEventListener('keydown', handleKeyDown)
   },[
+      user,
       currentText,
       status,
       showAnimation,
@@ -141,11 +145,12 @@ export const TypeSide: FC = () => {
       letterCounter,
       actualHistory,
       badWordIndex,
-      playerStatistics,
       wordWithPoints,
       currentStreak,
       goodLetters,
       badLetters,
+      addStatisticsBack,
+      addStatisticsFront,
       setShowAnimation,
       setStatus,
       setGameData,
@@ -157,7 +162,6 @@ export const TypeSide: FC = () => {
       setActualHistory,
       setWordCounter,
       setLetterCounter,
-      addToStatistics,
       doCalculation,
       setCurrentStreak,
       setBadLetters,

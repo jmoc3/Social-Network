@@ -26,6 +26,14 @@ func (s *Service) FindOne(ctx context.Context, id string) (*Statistic, error) {
 	return statistic, nil
 }
 
+func (s *Service) FindByUser(ctx context.Context, userId string) ([]*Statistic, error) {
+	statistics, err := s.repo.FindByUser(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	return statistics, nil
+}
+
 func (s *Service) Save(ctx context.Context, statistic *Statistic) (string, error) {
 	insertedId, err := s.repo.Save(ctx, statistic)
 	if err != nil {

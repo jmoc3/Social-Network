@@ -55,6 +55,27 @@ func (sr *StatisticRepository) FindOne(ctx context.Context, id string) (*statist
 	return statistic, nil
 }
 
+func (sr *StatisticRepository) FindByUser(ctx context.Context, userId string) ([]*statistic.Statistic, error) {
+	collection := sr.db.DB.Collection("statistics")
+
+	cursor, err := collection.Find(ctx, bson.M{"user_id": userId})
+	if err != nil {
+		return nil, err
+	}
+
+	defer cursor.Close(ctx)
+	var statistics []*statistic.Statistic
+	for cursor.Next(ctx) {
+		var statistic *statistic.Statistic
+		if err := cursor.Decode(&statistic); err != nil {
+			return nil, err
+		}
+
+		statistics = append(statistics, statistic)
+	}
+	return statistics, nil
+}
+
 func (sr *StatisticRepository) Save(ctx context.Context, statistic *statistic.Statistic) (string, error) {
 	collection := sr.db.DB.Collection("statistics")
 	result, err := collection.InsertOne(ctx, statistic)

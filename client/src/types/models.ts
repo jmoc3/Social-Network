@@ -8,8 +8,7 @@ type UserBase = {
 }
 
 type UserStatistics = {
-  id: number | null,
-  userId: number,
+  user_id: string,
   time: string,
   wpm: number,
   cpm: number,
