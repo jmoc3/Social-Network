@@ -16,7 +16,7 @@ type State = {
   actualHistory: string
   currentStreak: number
   goodLetters: number[]
-  badLetters: number[]
+  badLetters: Set<number>
 }
 
 type Actions = {
@@ -32,11 +32,12 @@ type Actions = {
   setLetterCounter: (letterCounter: number) => void
   setActualHistory: (actualHistory: string) => void
   doCalculation: (sentence: string) => {wpm:number, cpm: number}
+  setWordWithPoints: (key: number, value: number) => void
   resetWordPoints: () => void
   setCurrentStreak: (currentStreak: number) => void
   resetPoints: () => void
   setGoodLetters: (goodLetters: number[]) => void
-  setBadLetters: (badLetters: number[]) => void
+  setBadLetters: (badLetters: Set<number>) => void
   switchShowPointsAnimation: () => void
   setShowAnimation: (showAnimation: number[]) => void
 }
@@ -57,7 +58,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   actualHistory: '',
   currentStreak: 0,
   goodLetters: [],
-  badLetters: [],
+  badLetters: new Set([]),
   setStatus: (status) => ( set({ status }) ),
   startGame: () => set({ status: "playing" }),
   stopGame: () => set({ status: "finished" }),
@@ -73,7 +74,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
     resetWordPoints()
     setCurrentStreak(0)
     setGoodLetters([])
-    setBadLetters([])
+    setBadLetters(new Set([]))
     setShowAnimation([])
     set({ status: "finished", clock: [0,0] })
   },
@@ -129,9 +130,13 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
       points: 0
     }})
   },
+  setWordWithPoints: (key: number, value: number) => (set({wordWithPoints: {
+    ...get().wordWithPoints,
+    [key]: value
+  }})),
   resetWordPoints: () => ( set({wordWithPoints: {}}) ),
   setCurrentStreak: (currentStreak: number) => ( set({ currentStreak }) ),
-  setBadLetters: (badLetters: number[]) => ( set({ badLetters }) ),
+  setBadLetters: (badLetters: Set<number>) => ( set({ badLetters }) ),
   setGoodLetters: (goodLetters: number[]) => ( set({ goodLetters }) ),
   switchShowPointsAnimation: () => ( set({ showPointsAnimation: !get().showPointsAnimation }) ),
   setShowAnimation: (showAnimation: number[]) => (set({ showAnimation }))

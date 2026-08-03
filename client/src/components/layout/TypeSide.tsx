@@ -11,52 +11,47 @@ export const TypeSide: FC = () => {
   const [sent, setSent] = useState<boolean>(false)
   const [pointColor, setPointColor] = useState<string>('')
   const { user } = useAuthStore()
-  const {
-    currentText,
-    status, 
-    gameData,
-    clock,
-    actualHistory, 
-    wordCounter,
-    wordWithPoints,
-    letterCounter, 
-    currentStreak,
-    goodLetters,
-    badLetters,
-    showAnimation,
-    setGameData,
-    setActualHistory, 
-    setWordCounter,
-    setLetterCounter, 
-    setStatus, 
-    startClock, 
-    stopClock,
-    doCalculation,
-    setCurrentStreak,
-    setBadLetters,
-    setGoodLetters,
-    switchShowPointsAnimation,
-    setShowAnimation
-  } = useGameStore()
 
+  const { badLetters, currentText, showAnimation, letterCounter, currentStreak } = useGameStore()
   const { addStatisticsFront, addStatisticsBack } = useUserStore()
 
   const parts = currentText.split(".").map(text => text.trim())
-  const [badWordIndex, setBadWordIndex] = useState<Set<number>>(new Set())
   const [wordPoint, setWordPoint] = useState<number>() 
   const play = useProgresiveSound()
   const playError = useErrorSound()
   
   useEffect(()=>{
     const handleKeyDown = (e: KeyboardEvent) =>{  
-      const newKey = e.key == "Space" ? ' ' : e.key
+        const {
+          status, 
+          gameData,
+          clock,
+          actualHistory, 
+          wordCounter,
+          wordWithPoints,
+          goodLetters,
+          setGameData,
+          setActualHistory, 
+          setWordWithPoints,
+          setWordCounter,
+          setLetterCounter, 
+          setStatus, 
+          startClock, 
+          stopClock,
+          doCalculation,
+          setCurrentStreak,
+          setBadLetters,
+          setGoodLetters,
+          switchShowPointsAnimation,
+          setShowAnimation
+        } = useGameStore.getState()
+
+      const newKey = e.code == "Space" ? ' ' : e.key
       if(e.key == "Backspace" && letterCounter > 0){
         const behindLetterIndex = letterCounter - 1
-        
-        if(badLetters.includes(behindLetterIndex)){ setBadLetters(badLetters.filter(e => e != behindLetterIndex)) }
         if (actualHistory[behindLetterIndex] == ' ' && wordCounter > 0 && Object.keys(wordWithPoints).includes(`${wordCounter - 1}`)){ setWordCounter(wordCounter - 1) }
         
-        if([...badWordIndex].includes(behindLetterIndex)){ setBadWordIndex(new Set([...badWordIndex].filter(e => e != behindLetterIndex))) }
+        if([...badLetters].includes(behindLetterIndex)){ setBadLetters(new Set([...badLetters].filter(e => e != behindLetterIndex))) }
 
         const newHistory = actualHistory.slice(0, actualHistory.length - 1)
         setActualHistory(newHistory)
@@ -64,8 +59,8 @@ export const TypeSide: FC = () => {
 
         return
       }
-
-      if(e.key == 'Enter' && status != 'finished'){
+      
+      if(e.key == 'Enter' && currentText.length == actualHistory.length && status != 'finished'){
         setStatus('finished')
         stopClock()
         const { wpm, cpm } = doCalculation(actualHistory)
@@ -78,14 +73,13 @@ export const TypeSide: FC = () => {
           updatedAt: new Date(),
           createdAt: new Date()
         }
-        console.log(statistic)
         addStatisticsFront(statistic)
         addStatisticsBack(statistic)
         setSent(true)
         return
       }
 
-      if(e.key.length > 1 && e.key != 'Space') return
+      if(e.key.length > 1 && e.code != 'Space') return
       const currentWord = actualHistory.split(" ")[wordCounter] 
       const targetWord = currentText.split(" ")[wordCounter]
       if(currentWord.length == targetWord.length && 
@@ -93,8 +87,7 @@ export const TypeSide: FC = () => {
         ){
         
         if(!Object.keys(wordWithPoints).includes(`${wordCounter}`)){
-          wordWithPoints[wordCounter] = 1
-          
+          setWordWithPoints(wordCounter, 1)
           const goodLetters = currentWord.split("").filter((e, i) => e == targetWord[i]).length
           const points = Math.round(goodLetters * BASE * (currentStreak || 1))
           
@@ -117,12 +110,10 @@ export const TypeSide: FC = () => {
       }
       const newHistory = actualHistory + newKey
       setActualHistory(newHistory)
-      if(currentText[letterCounter] != newHistory[letterCounter]){ setBadWordIndex(new Set([...badWordIndex, newHistory.length - 1])) }
       setLetterCounter(letterCounter + 1)
-
       if(e.key != currentText[letterCounter]){
         setCurrentStreak(0)
-        setBadLetters([...badLetters, letterCounter])
+        setBadLetters(new Set([...badLetters, newHistory.length - 1]))
         playError()
         return
       }
@@ -133,43 +124,21 @@ export const TypeSide: FC = () => {
 
     return () => window.removeEventListener('keydown', handleKeyDown)
   },[
-      user,
-      currentText,
-      status,
-      showAnimation,
-      gameData,
-      clock,
-      sent,
-      parts,
-      wordCounter,
-      letterCounter,
-      actualHistory,
-      badWordIndex,
-      wordWithPoints,
-      currentStreak,
-      goodLetters,
-      badLetters,
-      addStatisticsBack,
-      addStatisticsFront,
-      setShowAnimation,
-      setStatus,
-      setGameData,
-      setWordPoint,
-      setBadWordIndex,
-      setSent,
-      startClock,
-      stopClock,
-      setActualHistory,
-      setWordCounter,
-      setLetterCounter,
-      doCalculation,
-      setCurrentStreak,
-      setBadLetters,
-      setGoodLetters,
-      switchShowPointsAnimation,
-      play,
-      playError
-    ]
+    user,
+    sent,
+    parts,
+    badLetters,
+    currentStreak,
+    currentText,
+    letterCounter,
+    showAnimation,
+    addStatisticsBack,
+    addStatisticsFront,
+    setWordPoint,
+    setSent,
+    play,
+    playError
+  ]
   )
   
   return (
@@ -179,7 +148,7 @@ export const TypeSide: FC = () => {
           currentText.split("").map((letter, index2) =>(
             <span key={index2} className={`relative ${index2}`}>
               <span 
-                className={`${index2 < letterCounter  ? `relative opacity-100 underline ${[...badWordIndex].includes(index2) ? 'text-red-500 animate-wrongWord' : ''}` : 'opacity-25'}`} 
+                className={`${index2 < letterCounter  ? `relative opacity-100 underline ${[...badLetters].includes(index2) ? 'text-red-500 animate-wrongWord' : ''}` : 'opacity-25'}`} 
                 >
                 {letter}
               

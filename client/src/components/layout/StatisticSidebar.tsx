@@ -7,7 +7,7 @@ export const StatisticSidebar : FC = () => {
   const { clock, resetGame } = useGameStore()
   const { userStatistics } = useUserStore()
   const buttonRef = useRef<HTMLButtonElement >(null)
-  console.log(userStatistics)
+
   const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     resetGame()
     event.currentTarget.blur()
@@ -66,8 +66,8 @@ export const StatisticSidebar : FC = () => {
                 userStatistics.length > 0 ? 
                   (
                     userStatistics.slice(-5).map((e, i) => (
-                      <tr key={i} className="text-center">
-                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{userStatistics.length - (i )}</td>
+                      <tr key={i} className={`${i == userStatistics.slice(-5).length - 1 ? "border border-b-blue-800 bg-blue-200 text-blue-800" : ""} text-center`}>
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''} font-bold`}>{(userStatistics.length - 4) + (i)}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.wpm}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.cpm}</td>
