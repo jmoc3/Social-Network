@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { NotFoundPage } from './pages/NotFound'
 import { RegisterPage } from './pages/RegisterPage'
 import { HomePage } from './pages/HomePage'
+import { ProfilePage } from './pages/ProfilePage'
 import { ProtectedRouter } from './pages/ProtectedRoute'
 import { UnProtectedRouter } from './pages/UnProtectedRoute'
 
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route element={<ProtectedRouter/>}>
           <Route path='/' element={<HomePage/>}></Route>
+          <Route path='/profile' element={<ProfilePage/>}></Route>
         </Route >
         <Route element={<UnProtectedRouter />}>
           <Route path='/login' element={<LoginPage/>}></Route>
