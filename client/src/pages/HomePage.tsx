@@ -23,7 +23,6 @@ export const HomePage: FC = () => {
 
   return (
     <div className="flex flex-col w-full h-screen">  
-      <WelcomeModal />
       <div className="flex-1 flex items-center gap-16 my-6 mx-24">
         <div className="flex flex-col gap-9">
           <WelcomeSide />

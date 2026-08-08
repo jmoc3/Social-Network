@@ -12,7 +12,7 @@ export const TypeSide: FC = () => {
   const [pointColor, setPointColor] = useState<string>('')
   const { user } = useAuthStore()
 
-  const { badLetters, currentText, showAnimation, letterCounter, currentStreak } = useGameStore()
+  const { badLetters, currentText, showAnimation, letterCounter, currentStreak, actualHistory } = useGameStore()
   const { addStatisticsFront, addStatisticsBack } = useUserStore()
 
   const parts = currentText.split(".").map(text => text.trim())
@@ -23,13 +23,14 @@ export const TypeSide: FC = () => {
   useEffect(()=>{
     const handleKeyDown = (e: KeyboardEvent) =>{  
         const {
+          currentWord,
           status, 
           gameData,
           clock,
-          actualHistory, 
           wordCounter,
           wordWithPoints,
           goodLetters,
+          setCurrentWord,
           setGameData,
           setActualHistory, 
           setWordWithPoints,
@@ -56,11 +57,25 @@ export const TypeSide: FC = () => {
         const newHistory = actualHistory.slice(0, actualHistory.length - 1)
         setActualHistory(newHistory)
         setLetterCounter(behindLetterIndex) 
-
+        setCurrentWord(currentWord.slice(0, currentWord.length - 1))
         return
       }
       
       if(e.key == 'Enter' && currentText.length == actualHistory.length && status != 'finished'){
+        
+        setWordWithPoints(wordCounter, 1)
+        const goodLetters = currentWord.split("").filter((e, i) => e == currentText.split(" ")[wordCounter][i]).length
+        const points = Math.round(goodLetters * BASE * (currentStreak || 1))
+        
+        setWordPoint(points)
+        setGameData("points", gameData.points + points)
+        setShowAnimation([...showAnimation, letterCounter])
+        setPointColor(randomColors[Math.floor(Math.random() * randomColors.length)])
+        switchShowPointsAnimation()
+        play()
+
+        setCurrentStreak(currentStreak + 1)
+      
         setStatus('finished')
         stopClock()
         const { wpm, cpm } = doCalculation(actualHistory)
@@ -80,12 +95,11 @@ export const TypeSide: FC = () => {
       }
 
       if(e.key.length > 1 && e.code != 'Space') return
-      const currentWord = actualHistory.split(" ")[wordCounter] 
+      
+      setCurrentWord(currentWord + e.key)      
       const targetWord = currentText.split(" ")[wordCounter]
-      if(currentWord.length == targetWord.length && 
-          e.key == ' '
-        ){
-        
+
+      if(currentWord.length == targetWord.length && e.key == ' ' ) {
         if(!Object.keys(wordWithPoints).includes(`${wordCounter}`)){
           setWordWithPoints(wordCounter, 1)
           const goodLetters = currentWord.split("").filter((e, i) => e == targetWord[i]).length
@@ -100,7 +114,7 @@ export const TypeSide: FC = () => {
 
           setCurrentStreak(currentStreak + 1)
         }
-
+        setCurrentWord("")
         setWordCounter(wordCounter + 1)
       }
 
@@ -124,6 +138,7 @@ export const TypeSide: FC = () => {
 
     return () => window.removeEventListener('keydown', handleKeyDown)
   },[
+    actualHistory,
     user,
     sent,
     parts,
@@ -143,7 +158,7 @@ export const TypeSide: FC = () => {
   
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
-      <span className="text-2xl">
+      <span className="text-3xl">
         {
           currentText.split("").map((letter, index2) =>(
             <span key={index2} className={`relative ${index2}`}>
@@ -153,7 +168,7 @@ export const TypeSide: FC = () => {
                 {letter}
               
               </span>
-              {currentText[index2] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >+{wordPoint}</span> : <></>}
+              {currentText[index2] == " " || currentText.length == actualHistory.length? <span className={`absolute left-0 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >+{wordPoint}</span> : <></>}
               {currentText[index2] == " " ? <span className={`absolute -left-16 bottom-7 opacity-0 ${showAnimation.includes(index2)  ? `animate-pointsUp ${pointColor}` : ''}`} >x{currentStreak}</span> : <></>}
             </span>
           ))

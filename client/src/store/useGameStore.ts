@@ -1,7 +1,10 @@
 import { create } from 'zustand'
+import { sentences } from "@/sentences"
 
 type State = {
   currentText: string
+  BASEPOINTS: number,
+  currentWord: string
   showAnimation: number[]
   showPointsAnimation: boolean
   status: "playing" | "finished"
@@ -21,6 +24,7 @@ type State = {
 
 type Actions = {
   setStatus: (status: State["status"]) => void
+  setCurrentWord: (word: string) => void
   startGame: () => void
   stopGame: () => void
   resetGame: () => void
@@ -41,9 +45,10 @@ type Actions = {
   switchShowPointsAnimation: () => void
   setShowAnimation: (showAnimation: number[]) => void
 }
-
 export const useGameStore = create<State & Actions>() ((set, get) => ({
-  currentText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non erat sit amet est tempor varius. Aenean gravida quam dui, eget convallis odio suscipit ut.",
+  currentText: sentences[Math.floor(Math.random() * sentences.length)].en as string,
+  BASEPOINTS: 2,
+  currentWord: "",
   showPointsAnimation: false,
   showAnimation: [],
   status: "finished",
@@ -60,10 +65,11 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   goodLetters: [],
   badLetters: new Set([]),
   setStatus: (status) => ( set({ status }) ),
+  setCurrentWord: (currentWord: string) => ( set({ currentWord }) ),
   startGame: () => set({ status: "playing" }),
   stopGame: () => set({ status: "finished" }),
   resetGame: () => {
-    const { setLetterCounter, setWordCounter, stopGame, stopClock, resetClock, resetWordPoints, setActualHistory, resetPoints, setCurrentStreak, setGoodLetters, setBadLetters, setShowAnimation } = get()
+    const { setLetterCounter, setWordCounter, stopGame, stopClock, resetClock, resetWordPoints, setActualHistory, resetPoints, setCurrentStreak, setGoodLetters, setBadLetters, setShowAnimation, setCurrentWord } = get()
     setLetterCounter(0)
     setWordCounter(0)
     stopGame()
@@ -76,6 +82,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
     setGoodLetters([])
     setBadLetters(new Set([]))
     setShowAnimation([])
+    setCurrentWord("")
     set({ status: "finished", clock: [0,0] })
   },
   startClock: () => {
