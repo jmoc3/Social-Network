@@ -2,6 +2,7 @@ package handler
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -57,9 +58,17 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Me(c *fiber.Ctx) error {
-	claims := c.Locals("claims").(jwt.MapClaims)
+	claimsRaw := c.Locals("claims")
+
+	if claimsRaw == nil {
+		return c.Status(401).JSON(fiber.Map{"msg": "Token invalido o expirado", "status": false})
+	}
+
+	claims := claimsRaw.(jwt.MapClaims)
 
 	return c.Status(200).JSON(fiber.Map{
+		"msg":     "User authenticated successfully",
+		"status":  true,
 		"user_id": claims["user_id"],
 		"email":   claims["email"],
 	})
@@ -77,6 +86,16 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"msg": err.Error(), "status": false})
 	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    token,
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24),
+	})
 
 	return c.Status(200).JSON(fiber.Map{"msg": "User successfully authenticated", "status": true, "token": token})
 }

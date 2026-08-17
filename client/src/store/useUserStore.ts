@@ -16,18 +16,12 @@ export const useUserStore = create<States & Actions>()((set, get) => ({
   userStatistics: [],
   addStatisticsFront: (statistic: UserStatistics) => (set({userStatistics: [...get().userStatistics, statistic]})),
   addStatisticsBack: async (statistic: UserStatistics) => {
-    const res = await apiFetch("/statistics", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(statistic)
-    })
+    const res = await apiFetch("/statistics", "POST", statistic)
 
     return res
   },
   getUserStatistics: async (userId: number) => {
-    const res = await apiFetch(`/statistics/user/${userId}`)
+    const res = await apiFetch(`/statistics/user/${userId}`,"GET")
 
     const data = await res.json()
     if(!data.statistics) return

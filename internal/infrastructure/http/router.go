@@ -17,6 +17,8 @@ func NewRouter(statisticHandler *handler.StatisticHanlder, userHandler *handler.
 	},
 	))
 	api := app.Group("/api/v1")
+	api.Post("/login", userHandler.Login)
+	api.Post("/register", userHandler.Register)
 
 	registerUserRoutes(api, userHandler)
 	registerStatisticRoutes(api, statisticHandler)
@@ -25,7 +27,7 @@ func NewRouter(statisticHandler *handler.StatisticHanlder, userHandler *handler.
 }
 
 func registerStatisticRoutes(router fiber.Router, h *handler.StatisticHanlder) {
-	statistics := router.Group("/statistics")
+	statistics := router.Group("/statistics", middleware.AuthMiddleware)
 	statistics.Get("/", h.FindAll)
 	statistics.Get("/:id", h.FindOne)
 	statistics.Post("/", h.Save)
@@ -35,10 +37,8 @@ func registerStatisticRoutes(router fiber.Router, h *handler.StatisticHanlder) {
 }
 
 func registerUserRoutes(router fiber.Router, h *handler.UserHandler) {
-	users := router.Group("/users")
+	users := router.Group("/users", middleware.AuthMiddleware)
 	users.Get("/", h.FindAll)
-	users.Get("/me", middleware.AuthMiddleware, h.Me)
-	users.Post("/login", h.Login)
-	users.Post("/register", h.Register)
+	users.Get("/me", h.Me)
 	users.Patch("/:id", h.Update)
 }

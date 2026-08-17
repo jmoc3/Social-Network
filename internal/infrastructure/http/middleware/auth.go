@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,22 +12,17 @@ import (
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func AuthMiddleware(c *fiber.Ctx) error {
-	header := c.Get("Authorization")
-	if header == "" {
-		return c.Status(401).JSON(fiber.Map{"error": "Token Requerido"})
+
+	token := c.Cookies("token")
+	if token == "" {
+		return c.Status(401).JSON(fiber.Map{"msg": "Token Requerido", "status": false})
 	}
 
-	parts := strings.Split(header, " ")
+	c.Locals("token", token)
 
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		return c.Status(401).JSON(fiber.Map{"error": "Token Invalido"})
-	}
-
-	c.Locals("token", parts[1])
-
-	claims, err := validarToken(parts[1])
+	claims, err := validarToken(token)
 	if err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Token invalido o expirado"})
+		return c.Status(401).JSON(fiber.Map{"msg": "Token invalido o expirado", "status": false})
 	}
 
 	c.Locals("claims", claims)

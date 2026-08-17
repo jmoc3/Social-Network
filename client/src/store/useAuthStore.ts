@@ -20,25 +20,12 @@ export const useAuthStore = create<State & Actions>() ((set) => ({
   setUser: (user: {name:string} | LoginDTO) => set({ user }),
   me: async () => {
     set({ loading: true })
-    const token = localStorage.getItem('token')
-
-    if (!token) {
-      set({ loading: false })
-      return
-    }
 
     try{
-      const res = await apiFetch("/users/me",{
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-      })
-
+      const res = await apiFetch("/users/me","GET")
       const data = await res.json()
 
-      if (Object.hasOwn(data, "error")){
+      if (!data.status){
         set({ user: null })
       }else{
         set({ user: data })
@@ -50,23 +37,11 @@ export const useAuthStore = create<State & Actions>() ((set) => ({
     set({ loading: false })
   },
   register: async (user) => {
-   const res = await apiFetch("/users/register",{
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(user)
-    })
+   const res = await apiFetch("/register","POST", user)
     return await res.json()
   },
   login: async (user) => {
-    const res = await apiFetch("/users/login",{
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(user)
-    })
+    const res = await apiFetch("/login","POST", user)
     
     return await res.json()
   }

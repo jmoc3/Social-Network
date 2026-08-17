@@ -25,7 +25,6 @@ export const LoginPage : FC = () => {
     }
 
     toast.success(res.msg)   
-    localStorage.setItem("token", res.token as string)
     navigate("/")
   }
 
