@@ -1,7 +1,8 @@
-import { useRef } from "react";
-
+import { useGameStore } from "@/store/useGameStore"
 export const useProgresiveSound = () => {
-  const counter = useRef(0)
+  const counter = useGameStore((state)=> state.soundCounter)
+  const increment = useGameStore((state)=> state.incrementSoundCounter)
+  const resetSoundCounter = useGameStore((state)=> state.resetSoundCounter)
 
   const play = () => {
     const ctx = new window.AudioContext()
@@ -15,7 +16,7 @@ export const useProgresiveSound = () => {
       { mult: 5.4,  decay: 0.15, vol: 0.05 }
     ]
 
-    const baseFrecuency = 900 + counter.current * 50
+    const baseFrecuency = 900 + counter * 50
 
     harmonics.forEach(({mult, decay, vol}) => {
       const osc = ctx.createOscillator()
@@ -32,8 +33,8 @@ export const useProgresiveSound = () => {
       osc.stop(now + decay)
     })
 
-    counter.current++
+    increment()
   } 
 
-  return play
+  return {play, resetSoundCounter}
 }

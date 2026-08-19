@@ -17,7 +17,7 @@ export const TypeSide: FC = () => {
 
   const parts = currentText.split(".").map(text => text.trim())
   const [wordPoint, setWordPoint] = useState<number>() 
-  const play = useProgresiveSound()
+  const { play } = useProgresiveSound()
   const playError = useErrorSound()
   
   useEffect(()=>{

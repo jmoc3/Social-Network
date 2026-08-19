@@ -1,9 +1,7 @@
-// import { Header } from "@/components/layout/Header";
 import { useEffect, type FC } from "react";
 import { MainMessageSidebar } from "@/components/layout/MainMessageSidebar";
 import { TypeSide } from "@/components/layout/TypeSide";
 import { StatisticSidebar } from "@/components/layout/StatisticSidebar";
-import { WelcomeModal } from "@/components/layout/WelcomeModal";
 import { WelcomeSide } from "@/components/layout/WelcomeSide";
 import { PointerIndicator } from "@/components/layout/PointerIndicator";
 import { useUserStore } from "@/store/useUserStore";

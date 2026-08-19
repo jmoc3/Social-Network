@@ -8,6 +8,7 @@ type State = {
   showAnimation: number[]
   showPointsAnimation: boolean
   status: "playing" | "finished"
+  soundCounter: number
   gameData: {
     points: number
   }
@@ -25,6 +26,8 @@ type State = {
 type Actions = {
   setStatus: (status: State["status"]) => void
   setCurrentWord: (word: string) => void
+  incrementSoundCounter: () => void
+  resetSoundCounter: () => void
   startGame: () => void
   stopGame: () => void
   resetGame: () => void
@@ -51,6 +54,7 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   currentWord: "",
   showPointsAnimation: false,
   showAnimation: [],
+  soundCounter: 0,
   status: "finished",
   gameData: {
     points: 0
@@ -66,6 +70,8 @@ export const useGameStore = create<State & Actions>() ((set, get) => ({
   badLetters: new Set([]),
   setStatus: (status) => ( set({ status }) ),
   setCurrentWord: (currentWord: string) => ( set({ currentWord }) ),
+  incrementSoundCounter: () => ( set({soundCounter: get().soundCounter + 1}) ),
+  resetSoundCounter: () => ( set({soundCounter: 0})),
   startGame: () => set({ status: "playing" }),
   stopGame: () => set({ status: "finished" }),
   resetGame: () => {

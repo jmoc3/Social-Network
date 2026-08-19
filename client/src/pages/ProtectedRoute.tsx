@@ -1,17 +1,18 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { useEffect, type FC } from "react"
-import { Navigate, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import { Header } from "@/components/layout/Header"
 export const ProtectedRouter : FC = () => {
-  const { me, user, loading } = useAuthStore()
+  const { loading, me } = useAuthStore()
   useEffect(()=>{
     me()
   },[])
+
   if (loading) return <span>Cargando ...</span>
-  return user ? (
+  return (
   <>
     <Header/>
     <Outlet/>
   </>
-    ) : <Navigate to='/login' replace />
+    )
 }

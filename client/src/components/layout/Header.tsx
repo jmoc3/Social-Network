@@ -2,9 +2,12 @@ import type { FC } from "react";
 import snIcon from '@/assets/sniconh_negro_sinfondo.png'
 import { FaSistrix } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export const Header: FC = () => {
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+
   return (
     <div className="absolute top-0 w-full flex justify-between px-24 py-6 ">
       <div className="flex gap-8">
@@ -12,6 +15,11 @@ export const Header: FC = () => {
         <ul className="flex items-center gap-4">
           <Link className="hover:font-bold cursor-pointer" to="/">Inicio</Link>
           <Link className="hover:font-bold cursor-pointer" to='/profile'>Perfil</Link>
+          {
+            user.user_id == "0" && (
+              <Link className="hover:font-bold cursor-pointer" to='/login'>Iniciar sesión</Link>
+            )
+          }
         </ul>
       </div>
       <div className="flex gap-4 items-center relative w-[21%]">

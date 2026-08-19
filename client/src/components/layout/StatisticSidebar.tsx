@@ -1,3 +1,4 @@
+import { useProgresiveSound } from "@/hooks/useProgresiveSound";
 import { useGameStore } from "@/store/useGameStore";
 import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useRef, type FC } from "react";
@@ -6,13 +7,16 @@ import { FaArrowsRotate } from "react-icons/fa6";
 export const StatisticSidebar : FC = () => {
   const { clock, resetGame } = useGameStore()
   const { userStatistics } = useUserStore()
+  const { resetSoundCounter } = useProgresiveSound()
+
   const buttonRef = useRef<HTMLButtonElement >(null)
 
   const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     resetGame()
+    resetSoundCounter()
+    console.log("AAAA")
     event.currentTarget.blur()
   }
-
   useEffect(()=> {
     const tabHandler = (event: KeyboardEvent) => {
       if(event.key =='Tab'){
@@ -67,7 +71,7 @@ export const StatisticSidebar : FC = () => {
                   (
                     userStatistics.slice(-5).map((e, i) => (
                       <tr key={i} className={`${i == userStatistics.slice(-5).length - 1 ? "border border-b-blue-800 bg-blue-200 text-blue-800" : ""} text-center`}>
-                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''} font-bold`}>{(userStatistics.length - 4) + (i)}</td>
+                        <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''} font-bold`}>{userStatistics.length  < 6 ? i+1 : (userStatistics.length - 4) + (i)}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.time}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.wpm}</td>
                         <td className={`w-1/4 py-1 ${i == 0 ? 'pt-3' : ''}`}>{e.cpm}</td>
