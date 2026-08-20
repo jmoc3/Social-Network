@@ -1,12 +1,21 @@
 import { useAuthStore } from "@/store/useAuthStore";
+import { useUserStore } from "@/store/useUserStore";
 import type { FC } from "react"
 import { FaRegCircleUser } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { IndexLineChart } from "@/components/recharts/LineChart";
 
 export const ProfilePage: FC = () => {
   const { user } = useAuthStore()
+  const { userStatistics } = useUserStore()
+
+  const chartData = []
+  for(const statistic of userStatistics ){
+    chartData.push({order: chartData.length + 1, ...statistic} as unknown as Record<string, string | number>)
+  }
+  
   return (
-    <div className="h-[70vh] w-full flex gap-16 my-6 mx-56">
+    <div className="h-[70vh] w-full flex my-6 mx-56">
       {
         user.user_id == "0" ? (
           <div className="w-full flex justify-center items-center">
@@ -49,7 +58,20 @@ export const ProfilePage: FC = () => {
         </div>
 
         <div className="w-[60%]">
-          Charts and some stuffs side
+          <div className="grid grid-cols-2">
+             <div className="grid gap-6">
+              <h3 className="text-xl ml-6">Rendimiento Historico</h3>
+              <IndexLineChart 
+                data={chartData} 
+                key="order"
+                maxWidth={500}
+              />
+            </div>
+            <div>
+
+            </div>
+          </div>
+
         </div>
         <div className="w-[20%]">
           aaa

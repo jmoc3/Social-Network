@@ -28,7 +28,6 @@ export const useAuthStore = create<State & Actions>() ((set) => ({
     try{
       const res = await apiFetch("/users/me","GET")
       const data = await res.json()
-      console.log("Data", data)
       if (!data.status){
         set({ user: DEFAULT_USER })
       }else{

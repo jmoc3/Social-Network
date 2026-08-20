@@ -14,7 +14,6 @@ export const StatisticSidebar : FC = () => {
   const onReset = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     resetGame()
     resetSoundCounter()
-    console.log("AAAA")
     event.currentTarget.blur()
   }
   useEffect(()=> {

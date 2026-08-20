@@ -7,7 +7,6 @@ export const PointerIndicator = () => {
       <div className="grid gap-2 px-10 py-4 border border-b-blue-600 rounded">
         <span className="text-2xl font-bold">Puntos</span>
         <span className="text-xl text-center">{gameData.points}</span>
-        {/* {currentText[letterCounter] == " " ? <span className={`absolute left-0 bottom-7 opacity-0 ${showPointsAnimation  ? `animate-pointsUp ` : ''}`} >+{wordPoint}</span> : <></>} */}
       </div>
       <div>
         <div className="flex gap-2">

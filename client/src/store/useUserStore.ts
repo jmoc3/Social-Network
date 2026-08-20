@@ -25,7 +25,6 @@ export const useUserStore = create<States & Actions>()((set, get) => ({
 
     const data = await res.json()
     if(!data.statistics) return
-    
     set({userStatistics: [...data.statistics]})    
   }
 }))
